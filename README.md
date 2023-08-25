@@ -173,10 +173,37 @@ export const useAuth = () => {
 // So the other components can access the AuthProvider component
 export default AuthProvider;
 ```
+> ⚠️ **_Warning_** ⚠️: Storing access tokens in `localStorage` is not secure. We are doing this for the sake of simplicity to explain how to use JWT. An alternative approach would be to use cookies to store the access token. Other secure storage mechanisms can also be used.
 
 ## 2.3. Create Routes for Authorized Access
 To safeguard authenticated routes from unauthorized access, we'll create a `ProtectedRoute` component. It ensures only authenticated users can enter, enhancing security. Make the `ProtectedRoute.js` file at src > routes > ProtectedRoute.js to strengthen our app's security.
 
 1. Import the required modules and packages:
 ```js
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../provider/authProvider";
+import React from "react";
+```
+2. Create the `ProtectedRoute` component:
+```js
+// Define ProtectedRoute component
+export const ProtectedRoute = () => {
+    const { token } = useAuth();
+    // If the user is not authenticated, go to the login page
+    if (!token) {
+        return React.createElement(Navigate, { to: "/login" });
+    }
+    // Otherwise, render the child components
+    return React.createElement(Outlet);
+};
+```
+
+## 2.4. More on Routes
+Now that the `ProtectedRoute` component and AuthContext are ready, we can create the routes for our app. Create a `index.js` file in `src` > `routes`. Follow the steps below to create the routes:
+
+1. Import the required modules and packages:
+```js
+import { RouterProvider, createBrowserRouter, Route } from "react-router-dom";
+import {useAuth} from "../provider/authProvider";
+import {ProtectedRoute} from "./ProtectedRoute";
 ```
