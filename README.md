@@ -33,7 +33,7 @@ In this section, we will be using JWT to implement authentication and authorizat
 
 We will put together a simple React app with JSON Server backend. The app will have a login page and a conditionally rendered homepage. The login page will have a form to enter the username and password. The home page displays a message based on whether the user is logged in or not.
 
-To get started fork/clone this repository -> [LINK HERE]
+To get started fork/clone this repository -> [https://github.com/CS3219-AY2324S1/SE-Toolbox-Auth-React-JWT.git](https://github.com/CS3219-AY2324S1/SE-Toolbox-Auth-React-JWT.git)
 
 As you can see, the project uses a separate React app for the frontend and a separate Node app for the backend. The React app will be served on `localhost:3000` and the Node app will be served on `localhost:8080`. The project file structure looks like this:
 ```bash
@@ -710,7 +710,7 @@ Running Auth API Server
 cd frontend
 npm start # or yarn start
 ```
-3. Open your browser and navigate to `localhost:3000`. You should see the login page. An example user has been created for you. You may use the following credentials to login:
+3. Open your browser and navigate to `localhost:3000`. You should see the login page. Some example users have been created for you already (see backend/users.json). For example, you may use the following credentials to login:
 ```bash
 username: abc@example.com
 password: 12345678
