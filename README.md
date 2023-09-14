@@ -730,6 +730,34 @@ Yay! You have successfully implemented authentication and authorization in a sam
 > Think about how you would verify the JWT token and return user data from the database. You may use the `jsonwebtoken` library to verify the JWT token and the `fs` library to read the `users.json` file.
 
 # 3. Auth0
+[Auth0](https://auth0.com/) is a flexible, drop-in solution to add authentication and authorization services to your applications. Your team and your users can securely authenticate with passwords, social identity providers, or enterprise identity providers to get seamless, SSO access to applications.
 
+Auth0's Universal Login is the [recommended](https://auth0.com/blog/introducing-the-new-auth0-universal-login-experience/) and most secure way to start using their login system. It redirects users to the login page, authenticates through Auth0's servers, and returns them to your app. You can begin with a basic username and password setup and easily integrate additional login methods as needed for your app.
 
- 
+ In this section, we will add authentication and authorization to a sample ReactJS web application using Auth0. 
+
+ Auth0 [provides several platform integrations](https://auth0.com/docs/). For this guide, we will use the React SDK. 
+
+ ## 3.1. Create Auth0 Account and Configure App
+1. Create an Auth0 account [here](https://auth0.com/signup). If you already have an account, then login.
+2. Create a new app on your Auth0 dashboard. Select type of App as "Single Page Web Applications" and click on "Create".
+
+![Create Auth0 App](images/auth0-1.png)
+
+<sup> Figure 3.1: Create Auth0 App </sup>
+
+3. Select the technology you are using. In this case, we will select "React".
+4. Click on "Create Application". You will be redirected to a Quick Start page. Click on Settings:
+
+![Got to settings](images/auth0-2.png)
+
+<sup> Figure 3.2: Go to the settings of your Auth0 app. </sup>
+
+5. Configure the URLs of the app for the logout and login functionality to work properly. For this app, set the URL for **Allowed Callback URLs** to `http://localhost:3000`.
+6. Set the URL for **Allowed Logout URLs** to `http://localhost:3000`.
+7. Allowed web origins handles checking the origin of the request. Ensures the login persists when one leaves the app or refreshes the page. Set the URL for **Allowed Web Origins** to `http://localhost:3000`. 
+8. Scroll down and click on "Save Changes".
+
+Your Auth0 app is now configured. You can now use the Auth0 SDK to add authentication and authorization to your app. If you want to add additional login methods, you can do so from the "Connections" tab on your Auth0 dashboard.
+
+## 3.2. Add Auth0 SDK to React App
