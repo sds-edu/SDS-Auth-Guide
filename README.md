@@ -48,11 +48,11 @@ your-project-folder
 ## 2.1. Frontend Setup and Explanation
 _Prerequisites: Install NodeJS (with npm) and yarn if you haven't already. We suggest that you use this node version for the purposes of this module => LTS v18.17.0, npm is v9.6.7 and yarn v1.22.19_
 
-In the frontend folder, install the following dependencies:
+In the frontend folder, install the dependencies:
 ```bash
-npm install react-router-dom axios
+npm install 
 ```
-The react-router-dom package will be used to implement routing in our app. The axios package will be used to make API requests to the backend.
+This should install react-router-dom and axios. The react-router-dom package will be used to implement routing in our app. The axios package will be used to make API requests to the backend.
 
 **Frontend File Structure (for relevant files only)**
 
@@ -422,10 +422,11 @@ It conditionally renders either a "Logout" button or a "Login" link based on the
 ## 2.2. Backend Setup and Explanation
 The frontend uses axios to make API requests to the backend. The backend is responsible for authenticating users and generating JWT tokens.
 
-In the backend folder, install the following dependencies:
+In the backend folder, install the dependencies:
 ```bash
-npm install fs body-parser json-server jsonwebtoken
+npm install 
 ```
+This should install fs, body-parser, json-server, jsonwebtoken:
 - fs: To read and write files.
 - body-parser: To parse incoming request bodies.
 - json-server: A lightweight and easy-to-use Node. js tool that simulates a RESTful API using a JSON file as the data source.
