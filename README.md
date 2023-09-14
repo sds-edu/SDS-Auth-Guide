@@ -759,6 +759,32 @@ Auth0's Universal Login is the [recommended](https://auth0.com/blog/introducing-
 7. Allowed web origins handles checking the origin of the request. Ensures the login persists when one leaves the app or refreshes the page. Set the URL for **Allowed Web Origins** to `http://localhost:3000`. 
 8. Scroll down and click on "Save Changes".
 
-Your Auth0 app is now configured. You can now use the Auth0 SDK to add authentication and authorization to your app. If you want to add additional login methods, you can do so from the "Connections" tab on your Auth0 dashboard.
+Your Auth0 app is now configured. You can now use the Auth0 SDK to add authentication and authorization to your app. If you want to add additional login methods, you can do so from the "Connections" tab on your Auth0 dashboard. 
 
-## 3.2. Add Auth0 SDK to React App
+## 3.2. Clone and Setup the Sample App
+Fork/clone the sample app from this repository-> [ADD_LINK].
+
+In the project folder, install the dependencies:
+```bash
+npm install 
+```
+This should install `@auth0/auth0-react` for you. This is the Auth0 SDK for React.
+
+**File Structure (for relevant files only)**
+
+```bash
+your-project-folder
+├── public
+├── src
+  ├── NavBar.js
+  ├── Profile.js
+  ├── App.js
+  ├── index.js
+├── package.json
+├── package-lock.json
+```
+
+`index.js` needs to be completed for this app to work. We will first go throught the code in the other files and then complete `index.js`.
+
+### 3.2.1. App.js
+
