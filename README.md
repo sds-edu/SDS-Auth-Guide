@@ -73,46 +73,23 @@ The frontend generally focuses on authorization-related code. That is, defining 
 The next few sections will explain the code in each of the files above.
 
 ### 2.1.1. App.js
-This code sets up the routing structure for your React application, allowing navigation between different components like Login, Register, Home, and NavBar. It also manages the `logoutUser` state, which appears to control the user's authentication status. The `react-router-dom` library is used for client-side routing, and components are conditionally rendered based on the current URL path.
+This code sets up the routing structure for your React application, allowing navigation between different components like Login, Register, Home, and NavBar. It also manages the `logoutUser` state, which controls the user's authentication status. The `react-router-dom` library is used for client-side routing, and components are conditionally rendered based on the current URL path.
 
-1. Import the necessary components and libraries.
-```js
-import React from "react";
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
-import Login from "./Login";
-import Home from "./Home";
-import NavBar from "./NavBar";
-import Register from "./Register";
-```
-2. Define the app component and set up the user authentication state.
+1. In the app component, set up the user authentication state.
 ```js
 function App() {
   const [logoutUser, setLogoutUser] = React.useState(false);
   // ...
 }
 ```
-3. Define inline styles (you may skip this step if you don't want to use inline styles).
-```js
-const headingStyle = { 
-    //... 
-};
-```
-4. Render the app component and elements that make up your app UI.
+2. Render the app component and elements that make up your app UI.
 ```js
 return (
     <BrowserRouter>
       <div className="App">
         <h2 style={headingStyle}>JWT Authentication</h2>
         <Routes>
-          <Route
-            path="/"
-            element={
-              <NavBar
-                logoutUser={logoutUser}
-                setLogoutUser={setLogoutUser}
-              />
-            }
-          />
+          <Route path="/" element={<NavBar logoutUser={logoutUser} setLogoutUser={setLogoutUser}/>}/>
           <Route path="/login" element={<Outlet />} />
         </Routes>
         <Routes>
@@ -125,13 +102,16 @@ return (
   );
 ```
 This is what the routing-related code does:
-- `<BrowserRouter>`: Sets up client-side routing using the react-router-dom library.
-- `<Routes>`: Serves as a container for defining the routes within your application.
-- `<Route path="/"> ... </Route>`: Represents the root URL ("/") and renders the NavBar component. It also passes the logoutUser and setLogoutUser props to NavBar.
-- `<Route path="/login" element={<Outlet />} />`: Corresponds to the "/login" URL and acts as a placeholder for child routes, allowing nesting of child routes within it.
-- `<Route path="/login" element={<Login setLogoutUser={setLogoutUser} />} />`: Represents the "/login" URL and renders the Login component while passing the setLogoutUser prop to it.
-- `<Route path="/register" element={<Register setLogoutUser={setLogoutUser} />} />`: Corresponds to the "/register" URL and renders the Register component while passing the setLogoutUser prop to it.
-- `<Route path="/" element={<Home logoutUser={logoutUser} />} />`: Represents the root URL ("/") and renders the Home component, passing the logoutUser prop to it.
+| Component/Route                           | Description                                                                                                                                                                      |
+|------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `<BrowserRouter>`                        | Sets up client-side routing using the react-router-dom library.                                                                                                                   |
+| `<Routes>`                               | Serves as a container for defining the routes within your application.                                                                                                            |
+| `<Route path="/"> ... </Route>`          | Represents the root URL ("/") and renders the NavBar component. It also passes the `logoutUser` and `setLogoutUser` props to NavBar.                                               |
+| `<Route path="/login" element={<Outlet />} />` | When you define a route path using `path="/login"` and provide `<Outlet />` as its element, you're essentially creating a placeholder for child routes. This allows you to render different components based on the route path while maintaining a consistent layout structure for your application. In this case, when you visit routes like `/login`, the content inside `<Outlet />` will be replaced with the component defined by the matching child route. You can find one of the outlets in `Home.js`. |
+| `<Route path="/login" element={<Login setLogoutUser={setLogoutUser} />} />`       | Represents the "/login" URL and renders the Login component while passing the `setLogoutUser` prop to it.                                                                      |
+| `<Route path="/register" element={<Register setLogoutUser={setLogoutUser} />} />` | Corresponds to the "/register" URL and renders the Register component while passing the `setLogoutUser` prop to it.                                                          |
+| `<Route path="/" element={<Home logoutUser={logoutUser} />} />`                | Represents the root URL ("/") and renders the Home component, passing the `logoutUser` prop to it.                                                                           |
+
 
 <sup> ^This text was generated with the help of [ChatGPT](https://chat.openai.com/). </sup>
 
