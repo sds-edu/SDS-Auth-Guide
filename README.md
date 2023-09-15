@@ -764,7 +764,7 @@ Auth0's Universal Login is the [recommended](https://auth0.com/blog/introducing-
 Your Auth0 app is now configured. You can now use the Auth0 SDK to add authentication and authorization to your app. If you want to add additional login methods, you can do so from the "Connections" tab on your Auth0 dashboard. 
 
 ## 3.2. Clone and Setup the Sample App
-Fork/clone the sample app from this repository-> [ADD_LINK].
+Fork/clone the sample app from this repository-> [https://github.com/CS3219-AY2324S1/SE-Toolbox-Auth-React-Auth0.git](https://github.com/CS3219-AY2324S1/SE-Toolbox-Auth-React-Auth0.git)
 
 In the project folder, install the dependencies:
 ```bash
