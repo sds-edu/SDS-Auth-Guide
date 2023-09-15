@@ -474,35 +474,32 @@ const jwt = require('jsonwebtoken');
  */
 const server = jsonServer.create();
 ```
-3. Read the users.json file and parse it into a JavaScript object.
-```js
-const userdb = JSON.parse(fs.readFileSync('./users.json', 'UTF-8'));
-```
-4. Set up the JSON server.
+3. Set up the JSON server.
 ```js
 server.use(bodyParser.urlencoded({ extended: true }));
 server.use(bodyParser.json());
 server.use(jsonServer.defaults());
 ```
-5. Define a secret key for signing JWT tokens.
+4. Define a secret key for signing JWT tokens.
 ```js
 const SECRET_KEY = '123456789'; // Replace with your secret key or use env variable
 ```
-6. Define expiration time for JWT tokens.
+5. Define expiration time for JWT tokens.
 ```js
 const expiresIn = '1h';
 ```
-7. Define a function to create a JWT token.
+6. Define a function to create a JWT token.
 ```js
 // Create a JWT token
 function createToken(payload) {
   return jwt.sign(payload, SECRET_KEY, { expiresIn });
 }
 ```
-8. Define a function to check if the user is Authenticated.
+7. Define a function to check if the user is Authenticated.
 ```js
 // Check if the user is authenticated
 function isAuthenticated({ username, password }) {
+  const userdb = JSON.parse(fs.readFileSync('./users.json', 'UTF-8'));
   return (
     userdb.users.findIndex(
       (user) => user.username === username && user.password === password
@@ -510,10 +507,11 @@ function isAuthenticated({ username, password }) {
   );
 }
 ```
-9. Define a function to check if the user is Registered.
+8. Define a function to check if the user is Registered.
 ```js
 // Check if the user is registered
 function isRegistered({ username }) {
+  const userdb = JSON.parse(fs.readFileSync('./users.json', 'UTF-8'));
   return (
     userdb.users.findIndex(
       (user) => user.username === username
@@ -521,7 +519,7 @@ function isRegistered({ username }) {
   );
 }
 ```
-10. Define the API endpoint for user registration.
+9.  Define the API endpoint for user registration.
 ```js
 server.post('/api/auth/register', (req, res) => {
     const { username, password } = req.body;
@@ -568,7 +566,7 @@ server.post('/api/auth/register', (req, res) => {
 - `res.status(200).json({ access_token });`: Returns the JWT token in the response body.
 - `res.status(status).json({ status, message });`: In case of errors, returns an error message in the response body.
 
-11. Define the API endpoint for user login.
+10.  Define the API endpoint for user login.
 ```js
 server.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body;
@@ -589,7 +587,7 @@ server.post('/api/auth/login', (req, res) => {
 - `res.status(200).json({ access_token });`: Returns the JWT token in the response body.
 - `res.status(status).json({ status, message });`: In case of errors, returns an error message in the response body.
 
-12. Run the server.
+11.  Run the server.
 ```js
 server.listen(8080, () => {
   console.log('Running Auth API Server');
@@ -608,7 +606,6 @@ const jwt = require('jsonwebtoken');
  * You may replace the JSON server with your own API server and database.
  */
 const server = jsonServer.create();
-const userdb = JSON.parse(fs.readFileSync('./users.json', 'UTF-8'));
 
 server.use(bodyParser.urlencoded({ extended: true }));
 server.use(bodyParser.json());
@@ -625,6 +622,7 @@ function createToken(payload) {
 
 // Check if the user is authenticated
 function isAuthenticated({ username, password }) {
+  const userdb = JSON.parse(fs.readFileSync('./users.json', 'UTF-8'));
   return (
     userdb.users.findIndex(
       (user) => user.username === username && user.password === password
@@ -633,6 +631,7 @@ function isAuthenticated({ username, password }) {
 }
 // Check if the user is registered
 function isRegistered({ username }) {
+  const userdb = JSON.parse(fs.readFileSync('./users.json', 'UTF-8'));
   return (
     userdb.users.findIndex(
       (user) => user.username === username
@@ -659,10 +658,10 @@ server.post('/api/auth/register', (req, res) => {
         }
         let userData = JSON.parse(data.toString());
         const last_item_id = userData.users[userData.users.length - 1].id;
-        userData.users.push({ id: last_item_id + 1, username:username, password:password }); 
+        userData.users.push({ id: last_item_id + 1, username:username, password:password }); //add some data
         fs.writeFile('./users.json', 
         JSON.stringify(userData), 
-        (err, result) => {  
+        (err, result) => {  // WRITE
             if (err) {
                 const status = 401;
                 const message = err;
