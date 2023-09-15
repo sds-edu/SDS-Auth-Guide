@@ -739,6 +739,8 @@ Auth0's Universal Login is the [recommended](https://auth0.com/blog/introducing-
 
  Auth0 [provides several platform integrations](https://auth0.com/docs/). For this guide, we will use the React SDK. 
 
+ > 📝**Note:** This guide only provides insight into the ReactJS SDK for Auth0. However, Auth0 provides many different SDKs for different platforms. You may explore other SDKs according to your needs.
+
  ## 3.1. Create Auth0 Account and Configure App
 1. Create an Auth0 account [here](https://auth0.com/signup). If you already have an account, then login.
 2. Create a new app on your Auth0 dashboard. Select type of App as "Single Page Web Applications" and click on "Create".
@@ -787,4 +789,139 @@ your-project-folder
 `index.js` needs to be completed for this app to work. We will first go throught the code in the other files and then complete `index.js`.
 
 ### 3.2.1. App.js
+App.js provides the structure of the React application with two components, NavBar and Profile, rendered inside the App component. The NavBar appears at the top, and the Profile appears below it with a margin to separate them.
+
+```js
+import React from 'react';
+import Profile from './Profile';
+import NavBar from './NavBar';
+
+function App() {
+  return (
+    <div>
+      <NavBar />
+      <div style={{ margin: '20px' }}> {/* Add margin for separation */}
+        <Profile />
+      </div>
+    </div>
+  );
+}
+
+export default App;
+```
+
+## 3.2.2. NavBar.js
+This code creates a Navbar component for a web application that adapts its appearance and functionality based on whether the user is authenticated. It uses the `useAuth0` hook for authentication handling. The main things to take note of in this file are:
+
+1. [Inside NavBar component] `const { isAuthenticated, loginWithPopup, logout } = useAuth0();` uses destructuring to extract specific properties and functions from the `useAuth0` hook. It retrieves information on whether the user is authenticated, a function to initiate the login process, and a function to initiate the user logout.
+2. [Inside NavBar component] `{isAuthenticated ? (...) : (...)}` conditionally renders the login and logout buttons based on the user's authentication status. 
+
+## 3.2.3. Profile.js
+This code creates a Profile component that displays user profile information when the user is authenticated. It uses the `useAuth0` hook to access user data. The main things to take note of in this file are:
+
+1. [Inside Profile component] `const { user, isAuthenticated } = useAuth0();` uses destructuring to extract specific properties from the `useAuth0` hook. It retrieves information on whether the user is authenticated and the user data.
+2. [Inside Profile component] `return isAuthenticated && (...)` conditionally renders the user profile information based on the user's authentication status. If the user is authenticated, it renders the content inside the parentheses. If not, it returns null (nothing is rendered). 
+
+## 3.2.4. index.js
+Now that we have seen the code in the other files, we can complete the `index.js` file. This file is responsible for rendering the App component and wrapping it with the Auth0Provider component. The Auth0Provider component provides the Auth0Context to the App component. The Auth0Context contains the `useAuth0` hook that we have been using in the other files.
+
+There are some environment variables that we need to define before we can complete the `index.js` file. Navigate to your project root folder and create a `.env` file. Add the following environment variables to the `.env` file:
+```bash
+REACT_APP_AUTH0_DOMAIN=<YOUR AUTH0 DOMAIN>
+REACT_APP_AUTH0_CLIENT_ID=<YOUR AUTH0 CLIENT ID>
+REACT_APP_AUTH0_CALLBACK_URL=http://localhost:3000
+```
+You can obtain the values for these environment variables from your Auth0 app settings. Navigate to your Auth0 dashboard and click on "Applications". Click on the application you created earlier and go to settings. You should be able to find the domain and client ID there.
+
+![Domain and client ID](images/auth0-3.png)
+
+<sup>Figure 3.2.4.1. Application settings in Auth0</sup>
+
+Now that we have defined the environment variables, we can complete the `index.js` file.
+
+1. Import the necessary libraries.
+```js
+import { Auth0Provider } from "@auth0/auth0-react";
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+```
+2. Obtain the domain and client ID from the environment variables.
+```js
+const domain = process.env.REACT_APP_AUTH0_DOMAIN;
+const clientId = process.env.REACT_APP_AUTH0_CLIENT_ID;
+```
+3. Create the entry point for the React application.
+```js
+ReactDOM.render(
+    // Next lines of code go here
+    );
+```
+4. [Inside ReactDOM.render] Wrap the App component with the Auth0Provider component.
+```js
+<Auth0Provider
+        domain={domain}
+        clientId={clientId}
+        redirectUri={window.location.origin}
+    >
+        <App />
+    </Auth0Provider>,
+    document.getElementById("root")
+```
+- `<Auth0Provider ... >`: Wraps the App component with the Auth0Provider component. It takes the following props:
+  - `domain`: The Auth0 domain.
+  - `clientId`: The Auth0 client ID.
+  - `redirectUri`: The URL to redirect to after login. In this case, it is the current URL.
+- `<App />`: Renders the App component. The entire application (and child components) are rendered with the authentication context provided by the Auth0Provider component.
+- `document.getElementById("root")`: Renders the App component in the root element of the HTML document.
+
+This code sets up Auth0 authentication for the React application by configuring the Auth0Provider component with the necessary Auth0 domain and client ID. It then renders the main App component, ensuring that all components within the app have access to authentication-related functionality provided by Auth0.
+
+<<sup> ^This text was generated with the help of [ChatGPT](https://chat.openai.com/). </sup>
+
+You final index.js file should look like this:
+```js
+// Wrap the entire app in Auth0Provider component
+import { Auth0Provider } from "@auth0/auth0-react";
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+
+const domain = process.env.REACT_APP_AUTH0_DOMAIN;
+const clientId = process.env.REACT_APP_AUTH0_CLIENT_ID;
+
+ReactDOM.render(
+    <Auth0Provider
+        domain={domain}
+        clientId={clientId}
+        redirectUri={window.location.origin}
+    >
+        <App />
+    </Auth0Provider>,
+    document.getElementById("root")
+    );
+```
+
+## 3.3. Putting it all together
+Now that we have added `index.js` and the environment variables, we can test out the app.
+
+1. Navigate to the root directory of the app and start the app.
+```bash
+npm start # or yarn start
+```
+2. Open your browser and navigate to `localhost:3000`. You should see the login page.
+3. Click on the "Login" button. Auth0 login should appear. You can create a new account - or login with a social account that you have added under 'Connections' in your Auth0 dashboard.
+   ![Login Auth0](images/auth0-4.png)
+
+<sup>Figure 3.3.1. Login with Auth0</sup>
+
+4. After logging in, you should see the profile page. You may logout by clicking on the "Logout" button in the navigation bar.
+
+![Profile page](images/auth0-5.png)
+
+<sup>Figure 3.3.2. Profile page</sup>
+
+Yay! You have successfully implemented authentication and authorization in a sample web application using Auth0. You may now use this as a reference to implement authentication and authorization in your own web applications.
+
+> 🔍**Further Exploration:** This is a very basic implementation of authentication and authorization. You may add more features and define more routes according to your needs. Explore Auth0 to find out how you can define different user roles (like Maintainer, Admin etc.) and how you may define your application routes based on these roles. 
 
