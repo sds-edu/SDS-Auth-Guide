@@ -115,40 +115,7 @@ This is what the routing-related code does:
 
 <sup> ^This text was generated with the help of [ChatGPT](https://chat.openai.com/). </sup>
 
-### 2.1.2. Home.js
- This code creates a dynamic Home component that adjusts its content based on whether a user is logged in or not. It encourages users to log in or register if they are not logged in and displays a personalized welcome message and additional content if they are logged in.
-
- 1. Check if the user is logged in or not.
- ```js
- const isLoginTrue = JSON.parse(localStorage.getItem("login"));
- ```
- Checks if the user is logged in by attempting to retrieve the "login" data from the browser's local storage. It parses the stored JSON data into a JavaScript object.
- 
-2. Render the component based on the user's authentication status.
- ```js
-  const userNotLogin = () => (
-    // This function renders content for users who are not logged in.
-  );
-
-  const userLoggedIn = () => (
-    // This function renders content for users who are logged in. 
-  );
-```
-3. Perform conditional rendering based on the user's authentication status.
-```js
- return (
-    <div style={containerStyle}>
-      {isLoginTrue && isLoginTrue.userLogin ? (
-        <>{userLoggedIn()}</>
-      ) : (
-        <>{userNotLogin()}</>
-      )}
-    </div>
-  );
-  ```
-If the user is logged in, the userLoggedIn() function is called. Otherwise, the userNotLogin() function is called.
-
-### 2.1.3. Login.js
+### 2.1.2. Login.js
 Login component is responsible for rendering a login form, handling user input, making a POST request to the backend server for authentication, and displaying error messages. It also manages the user's login state and provides a link to the registration page.
 
 1. In the Login component, manage the component state with `useState` hooks.
@@ -197,52 +164,9 @@ If the login is successful (no errors), it stores the user's login status and JW
 
 If there is an error (catch block), it checks if the error response exists (error.response) and updates the error state with the error message if available.
 
-3. [Inside Login component] Render the login form and error message.
-```js
-return (
-    <div style={styles.container}>
-      <h2 style={styles.heading}>Login Page</h2>
-      {error && <p style={styles.error}>{error}</p>}
-      <form onSubmit={login} style={styles.form}>
-        <label style={styles.label}>
-          Username:
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            style={styles.input}
-          />
-        </label>
-        <br />
-        <label style={styles.label}>
-          Password:
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={styles.input}
-          />
-        </label>
-        <br />
-        <button style={styles.button} type="submit">
-          Login
-        </button>
-      </form>
-      <p>
-        Don't have an account? <Link to="/register" style={styles.link}>Register</Link>.
-      </p>
-    </div>
-  );
-```
-- Heading: Displays "Login Page" with styling.
-- Error Message: Displays an error message if the error state is not empty.
-- Form: Contains input fields for the username and password.
-- "Login" Button: Allows the user to submit the login form.
-- Registration Link: Provides a link to the registration page.
-
 <sup> ^This text was generated with the help of [ChatGPT](https://chat.openai.com/). </sup>
 
-### 2.1.4. Register.js
+### 2.1.3. Register.js
 This code defines a Register component responsible for rendering a user registration form, handling user input, making a POST request to the backend server for registration, and displaying error messages. It also manages the user's login state and provides a link to the login page.
 
 1. In the Register component, manage the component state with `useState` hooks.
@@ -339,6 +263,39 @@ If there is an error (catch block), it checks if the error response exists (erro
 - Login Link: Provides a link to the login page.
 
 <sup> ^This text was generated with the help of [ChatGPT](https://chat.openai.com/). </sup>
+
+### 2.1.4. Home.js
+ This code creates a dynamic Home component that adjusts its content based on whether a user is logged in or not. It encourages users to log in or register if they are not logged in and displays a personalized welcome message and additional content if they are logged in.
+
+ 1. Check if the user is logged in or not.
+ ```js
+ const isLoginTrue = JSON.parse(localStorage.getItem("login"));
+ ```
+ Checks if the user is logged in by attempting to retrieve the "login" data from the browser's local storage. It parses the stored JSON data into a JavaScript object.
+ 
+2. Render the component based on the user's authentication status.
+ ```js
+  const userNotLogin = () => (
+    // This function renders content for users who are not logged in.
+  );
+
+  const userLoggedIn = () => (
+    // This function renders content for users who are logged in. 
+  );
+```
+3. Perform conditional rendering based on the user's authentication status.
+```js
+ return (
+    <div style={containerStyle}>
+      {isLoginTrue && isLoginTrue.userLogin ? (
+        <>{userLoggedIn()}</>
+      ) : (
+        <>{userNotLogin()}</>
+      )}
+    </div>
+  );
+  ```
+If the user is logged in, the userLoggedIn() function is called. Otherwise, the userNotLogin() function is called.
 
 ### 2.1.5. NavBar.js
 This code defines a NavBar component that displays either a "Logout" or a "Login" link in the navigation bar based on the user's login state. It retrieves and hydrates the user's login status from local storage and provides a logout mechanism.
