@@ -78,7 +78,7 @@ This code sets up the routing structure for your React application, allowing nav
 1. In the app component, set up the user authentication state.
 ```js
 function App() {
-  const [logoutUser, setLogoutUser] = React.useState(false);
+  const [isLoggedOut, setIsLoggedOut] = React.useState(false);
   // ...
 }
 ```
@@ -89,13 +89,13 @@ return (
       <div className="App">
         <h2 style={headingStyle}>JWT Authentication</h2>
         <Routes>
-          <Route path="/" element={<NavBar logoutUser={logoutUser} setLogoutUser={setLogoutUser}/>}/>
+          <Route path="/" element={<NavBar isLoggedOut={isLoggedOut} setIsLoggedOut={setIsLoggedOut}/>}/>
           <Route path="/login" element={<Outlet />} />
         </Routes>
         <Routes>
-          <Route path="/login" element={<Login setLogoutUser={setLogoutUser} />} />
-          <Route path="/register" element={<Register setLogoutUser={setLogoutUser} />} />
-          <Route path="/" element={<Home logoutUser={logoutUser}/>} /> {}
+          <Route path="/login" element={<Login setIsLoggedOut={setIsLoggedOut} />} />
+          <Route path="/register" element={<Register setIsLoggedOut={setIsLoggedOut} />} />
+          <Route path="/" element={<Home isLoggedOut={isLoggedOut}/>} /> {}
         </Routes>
       </div>
     </BrowserRouter>
@@ -112,7 +112,6 @@ This is what the routing-related code does:
 | `<Route path="/register" element={<Register setLogoutUser={setLogoutUser} />} />` | Corresponds to the "/register" URL and renders the Register component while passing the `setLogoutUser` prop to it.                                                          |
 | `<Route path="/" element={<Home logoutUser={logoutUser} />} />`                | Represents the root URL ("/") and renders the Home component, passing the `logoutUser` prop to it.                                                                           |
 
-
 <sup> ^This text was generated with the help of [ChatGPT](https://chat.openai.com/). </sup>
 
 ### 2.1.2. Login.js
@@ -120,7 +119,7 @@ Login component is responsible for rendering a login form, handling user input, 
 
 1. In the Login component, manage the component state with `useState` hooks.
 ```js
-const Login = ({ setLogoutUser }) => {
+const Login = ({ setIsLoggedOut }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -130,10 +129,10 @@ const Login = ({ setLogoutUser }) => {
 ```
 2. [Inside Login component] Handle user login by making a POST request to the backend server. Define a function `login` that is triggered when the login form is submitted.
 ```js
- const login = async (e) => {
+  const login = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:8080/api/auth/login", {
+        const response = await axios.post("http://localhost:8080/api/auth/login", {
         username,
         password,
       });
@@ -149,7 +148,7 @@ const Login = ({ setLogoutUser }) => {
       setError("");
       setUsername("");
       setPassword("");
-      setLogoutUser(false);
+      setIsLoggedOut(false);
       navigate("/");
       console.log("login successful");
     } catch (error) {
@@ -171,7 +170,7 @@ This code defines a Register component responsible for rendering a user registra
 
 1. In the Register component, manage the component state with `useState` hooks.
 ```js
-const Register = ({ setLogoutUser }) => {
+const Register = ({ setIsLoggedOut }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -200,7 +199,7 @@ const register = async (e) => {
       setError("");
       setUsername("");
       setPassword("");
-      setLogoutUser(false);
+      setIsLoggedOut(false);
       navigate("/");
       console.log("Registration successful");
     } catch (error) {
@@ -215,53 +214,6 @@ If the registration is successful (no errors), it stores the user's login status
 
 If there is an error (catch block), it checks if the error response exists (error.response) and updates the error state with the error message if available.
 
-3. [Inside Register component] Render the registration form and error message.
-```js
- return (
-    <div style={styles.container}>
-      <h2 style={styles.heading}>User Registration</h2>
-      {error && <p style={styles.error}>{error}</p>}
-      <form onSubmit={register} style={styles.form}>
-        <label style={styles.label}>
-          Username:
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            style={styles.input}
-          />
-        </label>
-        <br />
-        <label style={styles.label}>
-          Password:
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={styles.input}
-          />
-        </label>
-        <br />
-        <button style={styles.button} type="submit">
-          Register
-        </button>
-      </form>
-      <p>
-        Already have an account?{" "}
-        <button onClick={() => navigate("/login")} style={styles.link}>
-          Login
-        </button>
-      </p>
-    </div>
-  );
-```
-
-- Heading: Displays "User Registration" with styling.
-- Error Message: Displays an error message if the error state is not empty.
-- Form: Contains input fields for the username and password.
-- "Register" Button: Allows the user to submit the registration form.
-- Login Link: Provides a link to the login page.
-
 <sup> ^This text was generated with the help of [ChatGPT](https://chat.openai.com/). </sup>
 
 ### 2.1.4. Home.js
@@ -269,17 +221,17 @@ If there is an error (catch block), it checks if the error response exists (erro
 
  1. Check if the user is logged in or not.
  ```js
- const isLoginTrue = JSON.parse(localStorage.getItem("login"));
+ const isLoggedIn = JSON.parse(localStorage.getItem("login"));
  ```
- Checks if the user is logged in by attempting to retrieve the "login" data from the browser's local storage. It parses the stored JSON data into a JavaScript object.
+ Checks if the user is logged in by attempting to retrieve the "login" data from the browser's local storage. Recall the login data is stored in local storage as described in Login.js and Register.js. It parses the stored JSON data into a JavaScript object.
  
 2. Render the component based on the user's authentication status.
  ```js
-  const userNotLogin = () => (
+  const displayLoggedOutHomePage = () => (
     // This function renders content for users who are not logged in.
   );
 
-  const userLoggedIn = () => (
+  const displayLoggedInHomePage = () => (
     // This function renders content for users who are logged in. 
   );
 ```
@@ -288,21 +240,21 @@ If there is an error (catch block), it checks if the error response exists (erro
  return (
     <div style={containerStyle}>
       {isLoginTrue && isLoginTrue.userLogin ? (
-        <>{userLoggedIn()}</>
+        <>{displayLoggedInHomePage()}</>
       ) : (
-        <>{userNotLogin()}</>
+        <>{displayLoggedOutHomePage()}</>
       )}
     </div>
   );
   ```
-If the user is logged in, the userLoggedIn() function is called. Otherwise, the userNotLogin() function is called.
+If the user is logged in, the displayLoggedInHomePage() function is called. Otherwise, the displayLoggedOutHomePage() function is called.
 
 ### 2.1.5. NavBar.js
 This code defines a NavBar component that displays either a "Logout" or a "Login" link in the navigation bar based on the user's login state. It retrieves and hydrates the user's login status from local storage and provides a logout mechanism.
 
 1. In the NavBar component, manage the component state with `useState` hooks.
 ```js
-const NavBar = ({ logoutUser, setLogoutUser }) => {
+const NavBar = ({ isLoggedOut: isLoggedOut, setIsLoggedOut }) => {
   const [login, setLogin] = useState("");
   // ...
 };
@@ -310,15 +262,15 @@ const NavBar = ({ logoutUser, setLogoutUser }) => {
 2. [Inside NavBar component] Retrieve the user's login status from local storage and hydrate the login state.
 ```js
  useEffect(() => {
-    hydrateStateWithLocalStorage();
-  }, [logoutUser]);
+    hydrateStateFromLocalStorage();
+  }, [isLoggedOut]);
 
   const logout = () => {
     localStorage.removeItem("login");
-    setLogoutUser(true);
+    setIsLoggedOut(true);
   };
 
-  const hydrateStateWithLocalStorage = () => {
+  const hydrateStateFromLocalStorage = () => {
     if (localStorage.hasOwnProperty("login")) {
       let value = localStorage.getItem("login");
       try {
@@ -330,29 +282,9 @@ const NavBar = ({ logoutUser, setLogoutUser }) => {
     }
   };
 ```
-- `useEffect` hook: Calls the `hydrateStateWithLocalStorage` function when the logoutUser state changes. This effect is responsible for hydrating the login state variable with data from local storage when the component loads.
-- `const hydrateStateWithLocalStorage = () => { ... }`: Defines a function that checks if the "login" data exists in the browser's local storage. If the data exists, it retrieves and attempts to parse it into a JavaScript object. If parsing is successful, it sets the login state with the parsed value; otherwise, it sets login to an empty string.
+- `useEffect` hook: Calls the `hydrateStateFromLocalStorage` function when the logoutUser state changes. This effect is responsible for hydrating the login state variable with data from local storage when the component loads.
+- `const hydrateStateFromLocalStorage = () => { ... }`: Defines a function that checks if the "login" data exists in the browser's local storage. If the data exists, it retrieves and attempts to parse it into a JavaScript object. If parsing is successful, it sets the login state with the parsed value; otherwise, it sets login to an empty string.
 - `logout` function: Removes the "login" data from the browser's local storage and sets the logoutUser state to true.
-
-3. [Inside NavBar component] Render the navigation bar.
-```js
-return (
-    <nav>
-      <ul>
-        {!logoutUser && login && login.userLogin ? ( // Conditionally render login and logout based on user state
-          <li>
-            <button onClick={logout}>Logout</button>
-          </li>
-        ) : (
-          <li>
-            <Link to="/login">Login</Link>
-          </li>
-        )}
-      </ul>
-    </nav>
-  );
-```
-It conditionally renders either a "Logout" button or a "Login" link based on the user's login state and logoutUser prop. The `logout` function is called when the "Logout" button is clicked.
 
 <sup> ^This text was generated with the help of [ChatGPT](https://chat.openai.com/). </sup>
 
@@ -493,15 +425,18 @@ server.post('/api/auth/register', (req, res) => {
     res.status(200).json({ access_token });
 });
 ```
-- `server.post('/api/auth/register', (req, res) => { ... }`: Defines the POST /api/auth/register endpoint. It accepts a username and password in the request body and returns a JWT token if the registration is successful.
-- `const { username, password } = req.body;`: Destructures the username and password from the request body.
-- `if (isRegistered({ username }) === true) { ... }`: Checks if the user is already registered. If the user is already registered, it returns an error message.
-- `fs.readFile('./users.json', (err, data) => { ... }`: Reads the users.json file and parses it into a JavaScript object.
-- `userData.users.push({ id: last_item_id + 1, username:username, password:password });`: Adds the new user to the users array.
-- `fs.writeFile('./users.json', JSON.stringify(userData), (err, result) => { ... }`: Writes the updated users array to the users.json file.
-- `const access_token = createToken({ username, password });`: Creates a JWT token using the username and password.
-- `res.status(200).json({ access_token });`: Returns the JWT token in the response body.
-- `res.status(status).json({ status, message });`: In case of errors, returns an error message in the response body.
+| Code                                               | Description                                                                                       |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `server.post('/api/auth/register', (req, res) => { ... })` | Defines the POST /api/auth/register endpoint. It accepts a username and password in the request body and returns a JWT token if the registration is successful. |
+| `const { username, password } = req.body;`          | Destructures the username and password from the request body.                                     |
+| `if (isRegistered({ username }) === true) { ... }`   | Checks if the user is already registered. If the user is already registered, it returns an error message. |
+| `fs.readFile('./users.json', (err, data) => { ... })` | Reads the users.json file and parses it into a JavaScript object.                                  |
+| `userData.users.push({ id: last_item_id + 1, username:username, password:password });` | Adds the new user to the users array. |
+| `fs.writeFile('./users.json', JSON.stringify(userData), (err, result) => { ... })` | Writes the updated users array to the users.json file. |
+| `const access_token = createToken({ username, password });` | Creates a JWT token using the username and password. |
+| `res.status(200).json({ access_token });`           | Returns the JWT token in the response body.                                                        |
+| `res.status(status).json({ status, message });`     | In case of errors, returns an error message in the response body.                                    |
+
 
 10.  Define the API endpoint for user login.
 ```js
@@ -517,12 +452,15 @@ server.post('/api/auth/login', (req, res) => {
   res.status(200).json({ access_token });
 });
 ```
-- `server.post('/api/auth/login', (req, res) => { ... }`: Defines the POST /api/auth/login endpoint. It accepts a username and password in the request body and returns a JWT token if the login is successful.
-- `const { username, password } = req.body;`: Destructures the username and password from the request body.
-- `if (isAuthenticated({ username, password }) === false) { ... }`: Checks if the user is authenticated. If the user is not authenticated, it returns an error message.
-- `const access_token = createToken({ username, password });`: Creates a JWT token using the username and password.
-- `res.status(200).json({ access_token });`: Returns the JWT token in the response body.
-- `res.status(status).json({ status, message });`: In case of errors, returns an error message in the response body.
+| Code                                               | Description                                                                                       |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `server.post('/api/auth/login', (req, res) => { ... })` | Defines the POST /api/auth/login endpoint. It accepts a username and password in the request body and returns a JWT token if the login is successful. |
+| `const { username, password } = req.body;`          | Destructures the username and password from the request body.                                     |
+| `if (isAuthenticated({ username, password }) === false) { ... }` | Checks if the user is authenticated. If the user is not authenticated, it returns an error message. |
+| `const access_token = createToken({ username, password });` | Creates a JWT token using the username and password. |
+| `res.status(200).json({ access_token });`           | Returns the JWT token in the response body.                                                        |
+| `res.status(status).json({ status, message });`     | In case of errors, returns an error message in the response body.                                    |
+
 
 11.  Run the server.
 ```js
