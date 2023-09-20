@@ -24,7 +24,7 @@ There are many technologies used to implement authentication and authorization. 
 - SAML
 - ...etc
 
-In this guide, we will be focusing on JWT and Auth0. We will use both of these technologies to implement authentication and authorization in a sample web application. Section 2 will cover JWT and section 3 will cover Auth0.
+In this guide, we will be focusing on JWT and Auth0. We will use both of these technologies to implement authentication and authorization in a sample web application. [Section 2](#2-json-web-tokens-jwt) will cover JWT and [Section 3](#3-auth0) will cover Auth0.
 
 # 2. JSON Web Tokens (JWT)
 A JSON Web Token (JWT) is an open standard for securely transmitting information between parties as a JSON object. This information can be verified and trusted because it is digitally signed.
