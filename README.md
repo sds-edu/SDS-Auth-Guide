@@ -1,10 +1,10 @@
 # CS3219 Toolbox - Authentication and Authorization
 The CS3219 SE Toolbox is a collection of guides and resources to help you get started with the various tools and technologies used CS3219 - Software Engineering Principles and Patterns.
 
-The guides and resources below focus on authentication and authorization. Specifically, JSON Web Tokens (JWT) and Auth0. 
+The guides and resources below focus on authentication and authorization. We use JSON Web Tokens (JWT) and Auth0 as examples in this guide.
 
 # 1. Introduction
-This guide aims to help you learn the basics of different authentication and authorization mechanisms. Specifically, JSON Web Tokens (JWT) and Auth0. These technologies play a crucial role in securing web applications by ensuring that only authorized users can access certain resources. 
+This guide aims to help you learn the basics of different authentication and authorization mechanisms. For example, JSON Web Tokens (JWT) and Auth0. These technologies play a crucial role in securing web applications by ensuring that only authorized users can access certain resources. 
 
 <sup> ^This text was generated with the help of [ChatGPT](https://chat.openai.com/). </sup>
 
@@ -18,41 +18,52 @@ The table below summarizes the differences between authentication and authorizat
 | Eg. Logging in to a website | Eg. Accessing a file on a server, editing a document |
 
 There are many technologies used to implement authentication and authorization. Some of the most popular ones are:
-- JSON Web Tokens (JWT)
-- OAuth (eg. Auth0)
-- OpenID Connect (OIDC)
-- SAML
+- JSON Web Tokens (JWT): Supports both authentication and token-based authorization.
+- OAuth (eg. Auth0): Primarily focused on authorization but often includes authentication as part of the process.
+- OpenID Connect (OIDC): Supports both authentication and authorization and is often used for Single Sign-On.
+- SAML: Primarily used for Single Sign-On and web-based authentication but also supports some aspects of authorization.
 - ...etc
 
-In this guide, we will be focusing on JWT and Auth0. We will use both of these technologies to implement authentication and authorization in a sample web application. [Section 2](#2-json-web-tokens-jwt) will cover JWT and [Section 3](#3-auth0) will cover Auth0.
+Each of these technologies can be used in various ways and integrated into different systems to address specific authentication and authorization requirements. The choice of technology depends on your use case and requirements.
+
+In this guide, we will be focusing on JWT and Auth0 because they provide robust and widely adopted solutions for implementing authentication and authorization in web applications. 
+
+We will use both of these technologies to implement authentication and authorization in a sample web application. [Section 2](#2-json-web-tokens-jwt) will cover JWT and [Section 3](#3-auth0) will cover Auth0.
 
 # 2. JSON Web Tokens (JWT)
 A JSON Web Token (JWT) is an open standard for securely transmitting information between parties as a JSON object. This information can be verified and trusted because it is digitally signed.
 
 In this section, we will be using JWT to implement authentication and authorization in a sample web application. We will also gain an understanding of managing public routes, ensuring the security of authenticated routes, and effectively employing the axios library to execute API requests while utilizing the authentication token.
 
-We will put together a simple React app with JSON Server backend. The app will have a login page and a conditionally rendered homepage. The login page will have a form to enter the username and password. The home page displays a message based on whether the user is logged in or not.
+We will put together a simple React app with a JSON Server (mock database) + Node backend. The app will have a login page and a conditionally rendered homepage. The login page will have a form to enter the username and password. The home page displays a message based on whether the user is logged in or not.
 
-To get started fork/clone this repository -> [https://github.com/CS3219-AY2324S1/SE-Toolbox-Auth-React-JWT.git](https://github.com/CS3219-AY2324S1/SE-Toolbox-Auth-React-JWT.git)
+To get started fork/clone this repository: [SE-Toolbox-Auth-React-JWT](https://github.com/CS3219-AY2324S1/SE-Toolbox-Auth-React-JWT.git)
 
 As you can see, the project uses a separate React app for the frontend and a separate Node app for the backend. The React app will be served on `localhost:3000` and the Node app will be served on `localhost:8080`. The project file structure looks like this:
 ```bash
-your-project-folder
+SE-Toolbox-Auth-React-JWT
 ├── frontend
     ├── React app
 ├── backend
     ├── Node app
 ```
-> 📝**Note:** The app is not complete yet. As you read on you will complete it - but first lets have a look at the code that is already there.
+> 📝**Note:** The app is not complete yet. As you read on you will complete it - but first lets look at the code that is already there.
 
 ## 2.1. Frontend Setup and Explanation
-_Prerequisites: Install NodeJS (with npm) and yarn if you haven't already. We suggest that you use this node version for the purposes of this module => LTS v18.17.0, npm is v9.6.7 and yarn v1.22.19_
+_Prerequisites:_
+- If you haven't already, install [NodeJS LTS](https://nodejs.org/en/download/current)
+  - LTS vs18.17.0
+  - npm v9.6.7
+- Ensure you have an IDE installed (eg. This guide was made using [VSCode](https://code.visualstudio.com/))
+- Install [git](https://git-scm.com/downloads)
+- (Optional) [yarn](https://classic.yarnpkg.com/lang/en/docs/install/)
+  - v1.22.19
 
 In the frontend folder, install the dependencies:
 ```bash
 npm install 
 ```
-This should install react-router-dom and axios. The react-router-dom package will be used to implement routing in our app. The axios package will be used to make API requests to the backend.
+This should install [react-router-dom](https://www.npmjs.com/package/react-router-dom) and [axios](https://www.npmjs.com/package/axios). The react-router-dom package will be used to implement routing in our app. The axios package will be used to make API requests to the backend.
 
 **Frontend File Structure (for relevant files only)**
 
@@ -68,7 +79,7 @@ frontend
 ├── package.json
 ├── package-lock.json
 ```
-The frontend generally focuses on authorization-related code. That is, defining the routes, rendering the components, and managing what content is displayed based on the user's authentication status.
+The frontend generally focuses on authorization-related code. That is, rendering components and managing what content is displayed based on the user's authentication status
 
 The next few sections will explain the code in each of the files above.
 
@@ -129,8 +140,8 @@ const Login = ({ setIsLoggedOut }) => {
 ```
 2. [Inside Login component] Handle user login by making a POST request to the backend server. Define a function `login` that is triggered when the login form is submitted.
 ```js
-  const login = async (e) => {
-    e.preventDefault();
+  const login = async (event) => {
+    event.preventDefault();
     try {
         const response = await axios.post("http://localhost:8080/api/auth/login", {
         username,
@@ -148,7 +159,7 @@ const Login = ({ setIsLoggedOut }) => {
       setError("");
       setUsername("");
       setPassword("");
-      setIsLoggedOut(false);
+      setLogoutUser(false);
       navigate("/");
       console.log("login successful");
     } catch (error) {
@@ -180,8 +191,8 @@ const Register = ({ setIsLoggedOut }) => {
 ```
 2. [Inside Register component] Handle user registration by making a POST request to the backend server. Define a function `register` that is triggered when the registration form is submitted.
 ```js
-const register = async (e) => {
-    e.preventDefault();
+  const register = async (event) => {
+    event.preventDefault();
     try {
       const response = await axios.post("http://localhost:8080/api/auth/register", {
         username,
@@ -199,7 +210,7 @@ const register = async (e) => {
       setError("");
       setUsername("");
       setPassword("");
-      setIsLoggedOut(false);
+      setLogoutUser(false);
       navigate("/");
       console.log("Registration successful");
     } catch (error) {
@@ -296,14 +307,14 @@ In the backend folder, install the dependencies:
 npm install 
 ```
 This should install fs, body-parser, json-server, jsonwebtoken:
-- fs: To read and write files.
-- body-parser: To parse incoming request bodies.
-- json-server: A lightweight and easy-to-use Node. js tool that simulates a RESTful API using a JSON file as the data source.
-- jsonwebtoken: To generate JWT tokens.
+- [fs](https://www.npmjs.com/package/fs): To read and write files.
+- [body-parser](https://www.npmjs.com/package/body-parser): To parse incoming request bodies.
+- [json-server](https://www.npmjs.com/package/json-server): A lightweight and easy-to-use Node. js tool that simulates a RESTful API using a JSON file as the data source.
+- [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken): To generate JWT tokens.
 
 This backend uses a mock REST API to store user data. The user data is stored in a JSON file called `users.json`. The JSON file contains an array of user objects. Each user object has a username and password field.
 
-You may replace this mock REST API with a real database like MongoDB, PostgreSQL etc. 
+You can replace this mock REST API with a real database like MongoDB, PostgreSQL etc.
 
 **Backend File Structure (for relevant files only)**
 
@@ -315,8 +326,8 @@ backend
 ├── package-lock.json
 ```
 The backend generally focuses on authentication-related code. That is, generating JWT tokens, and verifying JWT tokens. It contains the following endpoints:
-- POST /api/auth/login: Authenticates the user and generates a JWT token.
-- POST /api/auth/register: Registers the user and generates a JWT token.
+- `POST /api/auth/login`: Authenticates the user and generates a JWT token.
+- `POST /api/auth/register`: Registers the user and generates a JWT token.
 
 You may add more endpoints to the backend to suit your needs. For example, you may add an endpoint to retrieve user data from the database.
 
@@ -425,6 +436,8 @@ server.post('/api/auth/register', (req, res) => {
     res.status(200).json({ access_token });
 });
 ```
+We will see what each line of code does below.
+
 | Code                                               | Description                                                                                       |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `server.post('/api/auth/register', (req, res) => { ... })` | Defines the POST /api/auth/register endpoint. It accepts a username and password in the request body and returns a JWT token if the registration is successful. |
@@ -452,6 +465,8 @@ server.post('/api/auth/login', (req, res) => {
   res.status(200).json({ access_token });
 });
 ```
+We will see what each line of code does below.
+
 | Code                                               | Description                                                                                       |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `server.post('/api/auth/login', (req, res) => { ... })` | Defines the POST /api/auth/login endpoint. It accepts a username and password in the request body and returns a JWT token if the login is successful. |
@@ -596,13 +611,13 @@ password: 12345678
 
 Yay! You have successfully implemented authentication and authorization in a sample web application using JWT. You may now use this as a reference to implement authentication and authorization in your own web applications.
 
-> 🔍**Further Exploration:** This is a very basic implementation of authentication and authorization. You may add more features to it to suit your needs. For example, you may add an endpoint to retrieve user data from the database. This would require changes to 
+> 🔍**Further Exploration:** This is a very basic implementation of authentication and authorization. You can add more features to it to suit your needs. For example, you may add an endpoint to retrieve user data from the database. This would require changes to 
 > - the frontend (to make the API request)
 > - the frontend (to display the user data)
 > - the backend (to handle the API request and return the user data)
 > - the backend (to verify the JWT token and return the user data)
 > 
-> Think about how you would verify the JWT token and return user data from the database. You may use the `jsonwebtoken` library to verify the JWT token and the `fs` library to read the `users.json` file.
+> Think about how you would verify the JWT token and return user data from the database. You can use the `jsonwebtoken` library to verify the JWT token and the `fs` library to read the `users.json` file.
 
 # 3. Auth0
 [Auth0](https://auth0.com/) is a flexible, drop-in solution to add authentication and authorization services to your applications. Your team and your users can securely authenticate with passwords, social identity providers, or enterprise identity providers to get seamless, SSO access to applications.
@@ -630,15 +645,18 @@ Auth0's Universal Login is the [recommended](https://auth0.com/blog/introducing-
 
 <sup> Figure 3.2: Go to the settings of your Auth0 app. </sup>
 
-5. Configure the URLs of the app for the logout and login functionality to work properly. For this app, set the URL for **Allowed Callback URLs** to `http://localhost:3000`.
-6. Set the URL for **Allowed Logout URLs** to `http://localhost:3000`.
-7. Allowed web origins handles checking the origin of the request. Ensures the login persists when one leaves the app or refreshes the page. Set the URL for **Allowed Web Origins** to `http://localhost:3000`. 
+5. Specify the URL where Auth0 should redirect the user after a successful login. For this app, set the URL for **Allowed Callback URLs** to `http://localhost:3000`.
+6. Specify the URL to which Auth0 should redirect the user after they log out. Set the URL for **Allowed Logout URLs** to `http://localhost:3000`.
+7. Define the origins (URLs) from which Auth0 will accept authentication requests. Ensures the login persists when one leaves the app or refreshes the page. Set the URL for **Allowed Web Origins** to `http://localhost:3000`. 
+  
+> 📝**Note:** When you configure these Auth0 settings with `http://localhost:3000`, you are specifying that your Auth0 authentication and logout processes should interact with the web application running locally on your machine at that specific URL. You can change these settings later when you deploy your app to a different URL.
+
 8. Scroll down and click on "Save Changes".
 
 Your Auth0 app is now configured. You can now use the Auth0 SDK to add authentication and authorization to your app. If you want to add additional login methods, you can do so from the "Connections" tab on your Auth0 dashboard. 
 
 ## 3.2. Clone and Setup the Sample App
-Fork/clone the sample app from this repository-> [https://github.com/CS3219-AY2324S1/SE-Toolbox-Auth-React-Auth0.git](https://github.com/CS3219-AY2324S1/SE-Toolbox-Auth-React-Auth0.git)
+Fork/clone the sample app from this repository: [SE-Toolbox-Auth-React-Auth0](https://github.com/CS3219-AY2324S1/SE-Toolbox-Auth-React-Auth0.git)
 
 In the project folder, install the dependencies:
 ```bash
@@ -697,7 +715,7 @@ This code creates a Profile component that displays user profile information whe
 2. [Inside Profile component] `return isAuthenticated && (...)` conditionally renders the user profile information based on the user's authentication status. If the user is authenticated, it renders the content inside the parentheses. If not, it returns null (nothing is rendered). 
 
 ## 3.2.4. index.js
-Now that we have seen the code in the other files, we can complete the `index.js` file. This file is responsible for rendering the App component and wrapping it with the Auth0Provider component. The Auth0Provider component provides the Auth0Context to the App component. The Auth0Context contains the `useAuth0` hook that we have been using in the other files.
+Now that we have seen the code in the other files, we can complete the `index.js` file. This file is responsible for rendering the App component and wrapping it with the Auth0Provider component. The Auth0Provider component provides the Auth0Context to the App component. The Auth0Context contains the `useAuth0` hook that we used in the other files.
 
 There are some environment variables that we need to define before we can complete the `index.js` file. Navigate to your project root folder and create a `.env` file. Add the following environment variables to the `.env` file:
 ```bash
@@ -751,7 +769,7 @@ ReactDOM.render(
 
 This code sets up Auth0 authentication for the React application by configuring the Auth0Provider component with the necessary Auth0 domain and client ID. It then renders the main App component, ensuring that all components within the app have access to authentication-related functionality provided by Auth0.
 
-<<sup> ^This text was generated with the help of [ChatGPT](https://chat.openai.com/). </sup>
+<sup> ^This text was generated with the help of [ChatGPT](https://chat.openai.com/). </sup>
 
 You final index.js file should look like this:
 ```js
@@ -799,3 +817,13 @@ Yay! You have successfully implemented authentication and authorization in a sam
 
 > 🔍**Further Exploration:** This is a very basic implementation of authentication and authorization. You may add more features and define more routes according to your needs. Explore Auth0 to find out how you can define different user roles (like Maintainer, Admin etc.) and how you may define your application routes based on these roles. 
 
+# 4. References
+The following resources were used to create this guide:
+- [This video tutorial on Authentication with JWT and React](https://youtu.be/UCTj-diBS-E?si=yZ0qopfc20-UaWk2)
+- [This article on JWT-based login for React-Express Apps](https://medium.com/@vrinmkansal/quickstart-jwt-based-login-for-react-express-app-eebf4ea9cfe8)
+- [This blogpost on React JWT Authentication (without Redux) example](https://www.bezkoder.com/react-jwt-auth/)
+- [This article on Authenticating React Apps with Auth0](https://www.smashingmagazine.com/2020/11/authenticating-react-apps-auth0/)
+- [React Router Dom Docs](https://reactrouter.com/en/main)
+- [Auth0 Docs](https://auth0.com/docs/)
+- Parts of this guide were generated with the help of [ChatGPT](https://chat.openai.com/).
+- Parts of this guide were generated with the help of [GitHub Copilot](https://copilot.github.com/).
