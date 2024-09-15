@@ -37,7 +37,7 @@ In this section, we will be using JWT to implement authentication and authorizat
 
 We will put together a simple React app with a JSON Server (mock database) + Node backend. The app will have a login page and a conditionally rendered homepage. The login page will have a form to enter the username and password. The home page displays a message based on whether the user is logged in or not.
 
-To get started fork/clone this repository: [SE-Toolbox-Auth-React-JWT](https://github.com/CS3219-AY2324S1/SE-Toolbox-Auth-React-JWT.git)
+To get started fork/clone this repository: [SE-Toolbox-Auth-React-JWT](https://github.com/nus-CS3219/SE-Toolbox-Auth-React-JWT)
 
 As you can see, the project uses a separate React app for the frontend and a separate Node app for the backend. The React app will be served on `localhost:3000` and the Node app will be served on `localhost:8080`. The project file structure looks like this:
 ```bash
