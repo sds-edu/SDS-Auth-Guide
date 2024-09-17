@@ -81,7 +81,7 @@ frontend
 ```
 The frontend generally focuses on authorization-related code. That is, rendering components and managing what content is displayed based on the user's authentication status
 
-The next few sections will explain the code in each of the files above.
+The next few sections will explain the code in each of the files above. Note that you do NOT need to modify the original frontend code based on the this section. 
 
 ### 2.1.1. App.js
 This code sets up the routing structure for your React application, allowing navigation between different components like Login, Register, Home, and NavBar. It also manages the `logoutUser` state, which controls the user's authentication status. The `react-router-dom` library is used for client-side routing, and components are conditionally rendered based on the current URL path.
