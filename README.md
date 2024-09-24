@@ -640,6 +640,7 @@ Auth0's Universal Login is the [recommended](https://auth0.com/blog/introducing-
  Auth0 [provides several platform integrations](https://auth0.com/docs/). For this guide, we will use the React SDK. 
 
  > 📝**Note:** This guide only provides insight into the ReactJS SDK for Auth0. However, Auth0 provides many different SDKs for different platforms. You may explore other SDKs according to your needs.
+ 
 
  ## 3.1. Create Auth0 Account and Configure App
 1. Create an Auth0 account [here](https://auth0.com/signup). If you already have an account, then login.
