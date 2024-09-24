@@ -122,6 +122,7 @@ return (
   );
 ```
 This is what the routing-related code does:
+
 | Component/Route                           | Description                                                                                                                                                                      |
 |------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `<BrowserRouter>`                        | Sets up client-side routing using the react-router-dom library.                                                                                                                   |
@@ -759,6 +760,7 @@ ReactDOM.render(
     );
 ```
 4. [Inside ReactDOM.render] Wrap the App component with the Auth0Provider component.
+
 ```js
 <Auth0Provider
         domain={domain}
@@ -781,6 +783,7 @@ This code sets up Auth0 authentication for the React application by configuring 
 <sup> ^This text was generated with the help of [ChatGPT](https://chat.openai.com/). </sup>
 
 You final index.js file should look like this:
+
 ```js
 // Wrap the entire app in Auth0Provider component
 import { Auth0Provider } from "@auth0/auth0-react";
