@@ -10,6 +10,7 @@ This guide aims to help you learn the basics of different authentication and aut
 
 ## 1.1. Authentication vs Authorization
 The table below summarizes the differences between authentication and authorization.
+
 | Authentication | Authorization |
 | --- | --- |
 | Verifies the identity of a user | Verifies whether a user has access to a resource |
