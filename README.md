@@ -81,7 +81,7 @@ frontend
 ```
 The frontend generally focuses on authorization-related code. That is, rendering components and managing what content is displayed based on the user's authentication status
 
-The next few sections will explain the code in each of the files above.
+The next few sections will explain the code in each of the files above. (You don't need to modify the original frontend code based on these explanations. The only exception is `index.js`.)
 
 ### 2.1.1. App.js
 This code sets up the routing structure for your React application, allowing navigation between different components like Login, Register, Home, and NavBar. It also manages the `logoutUser` state, which controls the user's authentication status. The `react-router-dom` library is used for client-side routing, and components are conditionally rendered based on the current URL path.
@@ -89,7 +89,7 @@ This code sets up the routing structure for your React application, allowing nav
 1. In the app component, set up the user authentication state.
 ```js
 function App() {
-  const [isLoggedOut, setIsLoggedOut] = React.useState(false);
+  const [logoutUser, setLogoutUser] = React.useState(false);
   // ...
 }
 ```
@@ -100,13 +100,21 @@ return (
       <div className="App">
         <h2 style={headingStyle}>JWT Authentication</h2>
         <Routes>
-          <Route path="/" element={<NavBar isLoggedOut={isLoggedOut} setIsLoggedOut={setIsLoggedOut}/>}/>
+          <Route
+            path="/"
+            element={
+              <NavBar
+                logoutUser={logoutUser}
+                setLogoutUser={setLogoutUser}
+              />
+            }
+          />
           <Route path="/login" element={<Outlet />} />
         </Routes>
         <Routes>
-          <Route path="/login" element={<Login setIsLoggedOut={setIsLoggedOut} />} />
-          <Route path="/register" element={<Register setIsLoggedOut={setIsLoggedOut} />} />
-          <Route path="/" element={<Home isLoggedOut={isLoggedOut}/>} /> {}
+          <Route path="/login" element={<Login setLogoutUser={setLogoutUser} />} />
+          <Route path="/register" element={<Register setLogoutUser={setLogoutUser} />} />
+          <Route path="/" element={<Home logoutUser={logoutUser}/>} /> {}
         </Routes>
       </div>
     </BrowserRouter>
@@ -130,7 +138,7 @@ Login component is responsible for rendering a login form, handling user input, 
 
 1. In the Login component, manage the component state with `useState` hooks.
 ```js
-const Login = ({ setIsLoggedOut }) => {
+const Login = ({ setLogoutUser }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -140,7 +148,7 @@ const Login = ({ setIsLoggedOut }) => {
 ```
 2. [Inside Login component] Handle user login by making a POST request to the backend server. Define a function `login` that is triggered when the login form is submitted.
 ```js
-  const login = async (event) => {
+const login = async (event) => {
     event.preventDefault();
     try {
         const response = await axios.post("http://localhost:8080/api/auth/login", {
@@ -181,7 +189,7 @@ This code defines a Register component responsible for rendering a user registra
 
 1. In the Register component, manage the component state with `useState` hooks.
 ```js
-const Register = ({ setIsLoggedOut }) => {
+const Register = ({ setLogoutUser }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -232,17 +240,17 @@ If there is an error (catch block), it checks if the error response exists (erro
 
  1. Check if the user is logged in or not.
  ```js
- const isLoggedIn = JSON.parse(localStorage.getItem("login"));
+ const isLoginTrue = JSON.parse(localStorage.getItem("login"));
  ```
  Checks if the user is logged in by attempting to retrieve the "login" data from the browser's local storage. Recall the login data is stored in local storage as described in Login.js and Register.js. It parses the stored JSON data into a JavaScript object.
  
 2. Render the component based on the user's authentication status.
  ```js
-  const displayLoggedOutHomePage = () => (
+  const userNotLogin = () => (
     // This function renders content for users who are not logged in.
   );
 
-  const displayLoggedInHomePage = () => (
+  const userLoggedIn  = () => (
     // This function renders content for users who are logged in. 
   );
 ```
@@ -251,37 +259,37 @@ If there is an error (catch block), it checks if the error response exists (erro
  return (
     <div style={containerStyle}>
       {isLoginTrue && isLoginTrue.userLogin ? (
-        <>{displayLoggedInHomePage()}</>
+        <>{userLoggedIn()}</>
       ) : (
-        <>{displayLoggedOutHomePage()}</>
+        <>{userNotLogin()}</>
       )}
     </div>
   );
   ```
-If the user is logged in, the displayLoggedInHomePage() function is called. Otherwise, the displayLoggedOutHomePage() function is called.
+If the user is logged in, the userLoggedIn() function is called. Otherwise, the userNotLogin() function is called.
 
 ### 2.1.5. NavBar.js
 This code defines a NavBar component that displays either a "Logout" or a "Login" link in the navigation bar based on the user's login state. It retrieves and hydrates the user's login status from local storage and provides a logout mechanism.
 
 1. In the NavBar component, manage the component state with `useState` hooks.
 ```js
-const NavBar = ({ isLoggedOut: isLoggedOut, setIsLoggedOut }) => {
+const NavBar = ({ logoutUser, setLogoutUser }) => {
   const [login, setLogin] = useState("");
   // ...
 };
 ```
 2. [Inside NavBar component] Retrieve the user's login status from local storage and hydrate the login state.
 ```js
- useEffect(() => {
-    hydrateStateFromLocalStorage();
-  }, [isLoggedOut]);
+  useEffect(() => {
+    hydrateStateWithLocalStorage();
+  }, [logoutUser]);
 
   const logout = () => {
     localStorage.removeItem("login");
-    setIsLoggedOut(true);
+    setLogoutUser(true);
   };
 
-  const hydrateStateFromLocalStorage = () => {
+  const hydrateStateWithLocalStorage = () => {
     if (localStorage.hasOwnProperty("login")) {
       let value = localStorage.getItem("login");
       try {
