@@ -31,6 +31,41 @@ In this guide, we will be focusing on JWT and Auth0 because they provide robust 
 
 We will use both of these technologies to implement authentication and authorization in a sample web application. [Section 2](#2-json-web-tokens-jwt) will cover JWT and [Section 3](#3-auth0) will cover Auth0.
 
+## 1.2. Token Storage, Refresh Tokens, and Threat Model (Best Practices)
+
+Understanding where and how you store tokens is **critical** to app security. Here's a pragmatic baseline for modern SPAs and APIs.
+
+<p align="center">
+  <img src="images/img3.jpg" width="520" alt="Access vs ID tokens overview">
+</p>
+
+**Access token vs Refresh token**
+- **Access Token**: Short-lived (e.g., 5–15 min). Used by the client to call your API (`Authorization: Bearer <token>`).
+- **Refresh Token**: Long-lived (e.g., days). Used to obtain new access tokens after expiry. Should be **well protected** and never exposed to JS if you can avoid it.
+
+**Where to store tokens?**
+- **HttpOnly, Secure, SameSite cookies (recommended for Refresh Tokens)**  
+  - Pros: Not readable by JS → mitigates XSS exfiltration. Sent automatically to the same origin (respecting `SameSite`).  
+  - Cons: CSRF must be handled (use `SameSite=Lax/Strict` and/or anti-CSRF token). Requires careful CORS/cookie config.
+- **In-memory (recommended for Access Tokens)**  
+  - Pros: Vanishes on reload; not persisted → limits post-XSS impact.  
+  - Cons: Lost on refresh → you'll need a refresh token to rehydrate.
+- **localStorage / sessionStorage (least preferred for tokens)**  
+  - Pros: Easy.  
+  - Cons: Readable by JS → **XSS can steal tokens**. Use only if you understand the risks and have strong CSP + input sanitization.
+
+**High-level flow**
+1. User authenticates → server sets **HttpOnly** refresh token cookie; client receives short-lived access token (held **in memory**).
+2. Access token expires → client calls `/api/auth/refresh` sending the cookie; server verifies refresh token and returns a new access token.
+3. On logout → server invalidates refresh token (e.g., revoke/delete from store) and clears cookie.
+
+**Mitigations checklist**
+- Rotate refresh tokens; maintain a server-side allowlist or hashed store (DB).  
+- Use short access-token TTLs; scope tokens narrowly.  
+- Set cookie flags: `HttpOnly`, `Secure` (HTTPS only), `SameSite=Lax` (or `Strict` if possible), and set precise `Path`/`Domain`.  
+- Add Content Security Policy (CSP) to reduce XSS blast radius.  
+- Validate JWTs server-side: signature, expiration, audience, issuer, and (optionally) `jti` for reuse detection.
+
 # 2. JSON Web Tokens (JWT)
 A JSON Web Token (JWT) is an open standard for securely transmitting information between parties as a JSON object. This information can be verified and trusted because it is digitally signed.
 
@@ -630,6 +665,200 @@ Yay! You have successfully implemented authentication and authorization in a sam
 > 
 > Think about how you would verify the JWT token and return user data from the database. You can use the `jsonwebtoken` library to verify the JWT token and the `fs` library to read the `users.json` file.
 
+
+### 2.4. Adding Refresh Tokens to the JWT Sample (Server & Client)
+
+Below extends the sample **Node** backend to issue and rotate refresh tokens securely. This is an educational baseline — in production, store refresh tokens **hashed** in a DB and use HTTPS.
+
+**Server: refresh token issuing & rotation**
+
+```js
+// backend/server.js (additions)
+
+const crypto = require('crypto');
+const cors = require('cors');
+
+// CORS (adjust origins as needed)
+server.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true // allow cookies
+}));
+
+// Helpers
+function genRefreshToken() {
+  return crypto.randomBytes(64).toString('hex');
+}
+
+// Persist refresh tokens (demo only — use DB in prod)
+function readUsers() {
+  return JSON.parse(fs.readFileSync('./users.json', 'UTF-8'));
+}
+function writeUsers(data) {
+  fs.writeFileSync('./users.json', JSON.stringify(data, null, 2));
+}
+
+// After successful login/register, also create a refresh token cookie
+function issueSession(res, { username }) {
+  const access_token = createToken({ username }); // short-lived
+  const refresh_token = genRefreshToken();        // long-lived
+  const db = readUsers();
+  const u = db.users.find(u => u.username === username);
+  u.refresh_token = refresh_token; // store (hash in prod)
+  writeUsers(db);
+
+  // HttpOnly cookie (demo flags; tune in prod)
+  res.cookie('rt', refresh_token, {
+    httpOnly: true,
+    secure: false,      // set true in HTTPS
+    sameSite: 'Lax',
+    path: '/api/auth'
+  });
+  return access_token;
+}
+
+// Update existing /register and /login handlers to use issueSession
+// Example (inside register success and login success):
+//   const access_token = issueSession(res, { username });
+//   return res.status(200).json({ access_token });
+
+// Add refresh endpoint
+server.post('/api/auth/refresh', (req, res) => {
+  try {
+    const rt = req.cookies?.rt;
+    if (!rt) return res.status(401).json({ message: 'Missing refresh token' });
+    const db = readUsers();
+    const user = db.users.find(u => u.refresh_token === rt);
+    if (!user) return res.status(401).json({ message: 'Invalid refresh token' });
+
+    // rotate
+    const newRt = genRefreshToken();
+    user.refresh_token = newRt;
+    writeUsers(db);
+
+    res.cookie('rt', newRt, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'Lax',
+      path: '/api/auth'
+    });
+    const access_token = createToken({ username: user.username });
+    res.json({ access_token });
+  } catch (e) {
+    res.status(500).json({ message: 'Refresh failed' });
+  }
+});
+
+// Add logout to revoke RT
+server.post('/api/auth/logout', (req, res) => {
+  const rt = req.cookies?.rt;
+  const db = readUsers();
+  const user = db.users.find(u => u.refresh_token === rt);
+  if (user) {
+    delete user.refresh_token;
+    writeUsers(db);
+  }
+  res.clearCookie('rt', { path: '/api/auth' });
+  res.json({ ok: true });
+});
+```
+
+🛠️ **Note**: You'll need cookie-parser and to initialize it:
+
+```bash
+npm i cors cookie-parser
+```
+
+```js
+const cookieParser = require('cookie-parser');
+server.use(cookieParser());
+```
+
+**Client: silent refresh (store access token in memory, fall back to refresh on 401)**
+
+```js
+// frontend/src/api.js
+import axios from 'axios';
+
+let accessToken = null;
+
+export const api = axios.create({
+  baseURL: 'http://localhost:8080',
+  withCredentials: true // send/receive cookies
+});
+
+api.interceptors.request.use((config) => {
+  if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
+  return config;
+});
+
+let refreshing = false;
+let queue = [];
+
+api.interceptors.response.use(
+  r => r,
+  async (error) => {
+    const original = error.config || {};
+    if (error.response?.status === 401 && !original._retry) {
+      original._retry = true;
+      if (!refreshing) {
+        refreshing = true;
+        try {
+          const { data } = await api.post('/api/auth/refresh');
+          accessToken = data.access_token;
+          queue.forEach((p) => p.resolve(accessToken));
+          queue = [];
+        } catch (e) {
+          queue.forEach((p) => p.reject(e));
+          queue = [];
+          throw e;
+        } finally {
+          refreshing = false;
+        }
+      }
+      // wait for refresh
+      const token = await new Promise((resolve, reject) => queue.push({ resolve, reject }));
+      original.headers.Authorization = `Bearer ${token}`;
+      return api(original);
+    }
+    throw error;
+  }
+);
+
+export function setAccessToken(token) { accessToken = token; }
+```
+
+Use `setAccessToken(access_token)` after login/register success. On 401s, the interceptor attempts `/api/auth/refresh` using the HttpOnly refresh token cookie.
+
+### 2.5. CORS Configuration (Local Dev)
+
+If your frontend runs on localhost:3000 and API on localhost:8080, configure CORS so browsers allow cross-origin requests and cookies.
+
+<p align="center">
+  <img src="images/img4.png" width="520" alt="CORS principle">
+</p>
+
+**Server (Node/Express/json-server)**
+
+```js
+// backend/server.js
+const cors = require('cors');
+server.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true, // allow cookies/Authorization headers
+}));
+```
+
+**Client (Axios)**
+
+```js
+// ensure withCredentials for cookie-based flows
+axios.defaults.withCredentials = true;
+```
+
+- Cookies require `credentials: true` on both sides.
+- Preflight (OPTIONS) must succeed; don't block it.
+- When deploying, set origin to your deployed frontend URL and keep HTTPS everywhere.
+
 # 3. Auth0
 [Auth0](https://auth0.com/) is a flexible, drop-in solution to add authentication and authorization services to your applications. Your team and your users can securely authenticate with passwords, social identity providers, or enterprise identity providers to get seamless, SSO access to applications.
 
@@ -831,13 +1060,237 @@ Yay! You have successfully implemented authentication and authorization in a sam
 
 > 🔍**Further Exploration:** This is a very basic implementation of authentication and authorization. You may add more features and define more routes according to your needs. Explore Auth0 to find out how you can define different user roles (like Maintainer, Admin etc.) and how you may define your application routes based on these roles. 
 
+
+### 3.4. Google OAuth 2.0 (Direct, without Auth0)
+
+You can integrate Google Sign-In directly using Google Identity Services (GIS) for OAuth 2.0/OIDC. This is useful when you don't need a broker like Auth0.
+
+<p align="center">
+  <img src="images/img1.png" width="600" alt="Google OAuth 2.0 overview">
+</p>
+
+**1) Create OAuth Client ID**
+
+Go to Google Cloud Console → APIs & Services → Credentials → Create Credentials → OAuth client ID → Application type: Web application.
+
+Add `http://localhost:3000` to Authorized JavaScript origins; add your callback route if using redirect UX.
+
+**2) React Setup (Popup UX via @react-oauth/google)**
+
+```bash
+npm i @react-oauth/google jwt-decode
+```
+
+```jsx
+// src/main.jsx or index.js
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import App from './App';
+
+const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || process.env.REACT_APP_GOOGLE_CLIENT_ID;
+
+ReactDOM.render(
+  <GoogleOAuthProvider clientId={clientId}>
+    <App />
+  </GoogleOAuthProvider>,
+  document.getElementById('root')
+);
+```
+
+```jsx
+// src/GoogleLoginButton.jsx
+import { GoogleLogin } from '@react-oauth/google';
+import jwtDecode from 'jwt-decode';
+import { api, setAccessToken } from './api';
+
+export default function GoogleLoginButton() {
+  return (
+    <GoogleLogin
+      onSuccess={async (credentialResponse) => {
+        // Google returns a credential (JWT). Send it to your backend to exchange for your app's session.
+        const idToken = credentialResponse.credential; // JWT
+        const { data } = await api.post('/api/auth/google', { idToken });
+        setAccessToken(data.access_token); // short-lived access token from your API
+      }}
+      onError={() => console.log('Login Failed')}
+      useOneTap
+    />
+  );
+}
+```
+
+**3) Backend: Verify Google ID Token, issue your JWTs**
+
+```bash
+npm i google-auth-library
+```
+
+```js
+// backend/google.js
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// POST /api/auth/google
+server.post('/api/auth/google', async (req, res) => {
+  try {
+    const { idToken } = req.body;
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload(); // {sub, email, name, picture, ...}
+    const username = payload.email;
+
+    // upsert user, then issue session (access + refresh cookie)
+    const access_token = issueSession(res, { username });
+    res.json({ access_token });
+  } catch (e) {
+    res.status(401).json({ message: 'Google token invalid' });
+  }
+});
+```
+
+**Notes**
+- Always verify the Google ID token server-side (audience, issuer, expiry).
+- Map Google users to your internal users; decide what fields you trust.
+- You can combine this with the refresh-token flow from Section 2.4.
+
+### 3.5. Firebase Authentication (Email/Password + Google)
+
+Firebase Auth is a popular managed solution that supports email/password, social providers, multi-tenancy, and more. Below is a minimal React setup with Email/Password and Google sign-in.
+
+<p align="center">
+  <img src="images/img2.png" width="280" alt="Firebase logo">
+</p>
+
+**1) Install & initialize**
+
+```bash
+npm i firebase
+```
+
+```js
+// src/firebase.js
+import { initializeApp } from 'firebase/app';
+import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FB_API_KEY,
+  authDomain: import.meta.env.VITE_FB_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FB_PROJECT_ID,
+  appId: import.meta.env.VITE_FB_APP_ID,
+};
+
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const googleProvider = new GoogleAuthProvider();
+```
+
+**2) Email/Password sign-up & sign-in**
+
+```js
+// src/authEmail.js
+import { auth } from './firebase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+
+export async function registerEmailPassword(email, password) {
+  const { user } = await createUserWithEmailAndPassword(auth, email, password);
+  return user;
+}
+
+export async function loginEmailPassword(email, password) {
+  const { user } = await signInWithEmailAndPassword(auth, email, password);
+  return user;
+}
+
+export function logout() { return signOut(auth); }
+```
+
+**3) Google sign-in (Popup)**
+
+```js
+// src/authGoogle.js
+import { auth, googleProvider } from './firebase';
+import { signInWithPopup } from 'firebase/auth';
+
+export async function loginWithGoogle() {
+  const { user } = await signInWithPopup(auth, googleProvider);
+  return user;
+}
+```
+
+**4) Using Firebase ID Token with your API**
+
+```js
+// After Firebase login, exchange Firebase ID token for your API tokens
+import { auth } from './firebase';
+import { api, setAccessToken } from './api';
+
+export async function exchangeFirebaseToken() {
+  const idToken = await auth.currentUser.getIdToken(/* forceRefresh? */);
+  const { data } = await api.post('/api/auth/firebase', { idToken });
+  setAccessToken(data.access_token);
+}
+```
+
+**5) Backend: Verify Firebase ID Token**
+
+```bash
+npm i firebase-admin
+```
+
+```js
+// backend/firebase.js
+const admin = require('firebase-admin');
+const serviceAccount = require('./service-account.json'); // from Firebase console
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+server.post('/api/auth/firebase', async (req, res) => {
+  try {
+    const { idToken } = req.body;
+    const decoded = await admin.auth().verifyIdToken(idToken);
+    const username = decoded.email || decoded.uid;
+    const access_token = issueSession(res, { username }); // reuse refresh flow
+    res.json({ access_token });
+  } catch (e) {
+    res.status(401).json({ message: 'Firebase token invalid' });
+  }
+});
+```
+
+**Security notes**
+- Treat Firebase as your Identity Provider; your backend still issues your access/refresh tokens for your APIs.
+- Enforce auth in your API using JWT middleware (validate signature, exp, aud/iss).
+- For Firestore/RTDB usage, set proper Security Rules — auth alone isn't authorization.
+
 # 4. References
 The following resources were used to create this guide:
+
+## Core Authentication & JWT
 - [This video tutorial on Authentication with JWT and React](https://youtu.be/UCTj-diBS-E?si=yZ0qopfc20-UaWk2)
 - [This article on JWT-based login for React-Express Apps](https://medium.com/@vrinmkansal/quickstart-jwt-based-login-for-react-express-app-eebf4ea9cfe8)
 - [This blogpost on React JWT Authentication (without Redux) example](https://www.bezkoder.com/react-jwt-auth/)
+
+## Token Security & Best Practices
+- [Auth0 Docs: Refresh Tokens](https://auth0.com/docs/secure/tokens/refresh-tokens) - Referenced for Section 1.2. Token Storage, Refresh Tokens, and Threat Model
+- [Auth0 Docs: Refresh Token Rotation](https://auth0.com/docs/secure/tokens/refresh-tokens/refresh-token-rotation) - Referenced for Section 2.4. Adding Refresh Tokens
+
+## CORS & Browser Security
+- [MDN Web Docs: Cross-Origin Resource Sharing (CORS)](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) - Referenced for Section 2.5. CORS Configuration
+
+## OAuth & Social Authentication
+- [Google Identity: OAuth 2.0](https://developers.google.com/identity/protocols/oauth2) - Referenced for Section 3.4. Google OAuth 2.0
 - [This article on Authenticating React Apps with Auth0](https://www.smashingmagazine.com/2020/11/authenticating-react-apps-auth0/)
-- [React Router Dom Docs](https://reactrouter.com/en/main)
 - [Auth0 Docs](https://auth0.com/docs/)
+
+## Firebase Authentication
+- [Firebase Documentation: Authentication](https://firebase.google.com/docs/auth) - Referenced for Section 3.5. Firebase Authentication
+
+## Framework Documentation
+- [React Router Dom Docs](https://reactrouter.com/en/main)
+
+## AI Assistance
 - Parts of this guide were generated with the help of [ChatGPT](https://chat.openai.com/).
 - Parts of this guide were generated with the help of [GitHub Copilot](https://copilot.github.com/).
