@@ -69,7 +69,7 @@ _Prerequisites:_
 - (Optional) [yarn](https://classic.yarnpkg.com/lang/en/docs/install/)
   - v1.22.19
 
-In the frontend folder, install the dependencies:
+In the `frontend/` folder, install the dependencies:
 
 ```bash
 npm install
@@ -98,7 +98,7 @@ The next few sections will explain the code in each of the files above. (You don
 
 #### 2.1.1. App.js
 
-This code sets up the routing structure for your React application, allowing navigation between different components like Login, Register, Home, and NavBar. It also manages the `logoutUser` state, which controls the user's authentication status. The `react-router-dom` library is used for client-side routing, and components are conditionally rendered based on the current URL path.
+The code in `src/App.js` sets up the routing structure for your React application, allowing navigation between different components like Login, Register, Home, and NavBar. It also manages the `logoutUser` state, which controls the user's authentication status. The `react-router-dom` library is used for client-side routing, and components are conditionally rendered based on the current URL path.
 
 1. In the app component, set up the user authentication state.
 
@@ -154,7 +154,7 @@ This is what the routing-related code does:
 
 #### 2.1.2. Login.js
 
-Login component is responsible for rendering a login form, handling user input, making a POST request to the backend server for authentication, and displaying error messages. It also manages the user's login state and provides a link to the registration page.
+In the file `src/Login.js`, the Login component is responsible for rendering a login form, handling user input, making a POST request to the backend server for authentication, and displaying error messages. It also manages the user's login state and provides a link to the registration page.
 
 1. In the Login component, manage the component state with `useState` hooks.
 
@@ -204,13 +204,13 @@ Login component is responsible for rendering a login form, handling user input, 
 
 If the login is successful (no errors), it stores the user's login status and JWT token in the browser's local storage using localStorage.setItem, updates states, and navigates the user to the home page.
 
-If there is an error (catch block), it checks if the error response exists (error.response) and updates the error state with the error message if available.
+If there is an error (catch block), it checks if the error response exists (`error.response`) and updates the error state with the error message if available.
 
 <sup> ^This text was generated with the help of [ChatGPT](https://chat.openai.com/). </sup>
 
 #### 2.1.3. Register.js
 
-This code defines a Register component responsible for rendering a user registration form, handling user input, making a POST request to the backend server for registration, and displaying error messages. It also manages the user's login state and provides a link to the login page.
+The code in `src/Register.js` defines a Register component responsible for rendering a user registration form, handling user input, making a POST request to the backend server for registration, and displaying error messages. It also manages the user's login state and provides a link to the login page.
 
 1. In the Register component, manage the component state with `useState` hooks.
 
@@ -260,13 +260,13 @@ This code defines a Register component responsible for rendering a user registra
 
 If the registration is successful (no errors), it stores the user's login status and JWT token in the browser's local storage using localStorage.setItem, updates states, and navigates the user to the home page.
 
-If there is an error (catch block), it checks if the error response exists (error.response) and updates the error state with the error message if available.
+If there is an error (catch block), it checks if the error response exists (`error.response`) and updates the error state with the error message if available.
 
 <sup> ^This text was generated with the help of [ChatGPT](https://chat.openai.com/). </sup>
 
 #### 2.1.4. Home.js
 
- This code creates a dynamic Home component that adjusts its content based on whether a user is logged in or not. It encourages users to log in or register if they are not logged in and displays a personalized welcome message and additional content if they are logged in.
+The code in `src/Home.js` creates a dynamic Home component that adjusts its content based on whether a user is logged in or not. It encourages users to log in or register if they are not logged in and displays a personalized welcome message and additional content if they are logged in.
 
 1. Check if the user is logged in or not.
 
@@ -302,11 +302,11 @@ If there is an error (catch block), it checks if the error response exists (erro
       );
     ```
 
-If the user is logged in, the userLoggedIn() function is called. Otherwise, the userNotLogin() function is called.
+If the user is logged in, the `userLoggedIn()` function is called. Otherwise, the `userNotLogin()` function is called.
 
 #### 2.1.5. NavBar.js
 
-This code defines a NavBar component that displays either a "Logout" or a "Login" link in the navigation bar based on the user's login state. It retrieves and hydrates the user's login status from local storage and provides a logout mechanism.
+The code in `src/Navbar.js` defines a NavBar component that displays either a "Logout" or a "Login" link in the navigation bar based on the user's login state. It retrieves and hydrates the user's login status from local storage and provides a logout mechanism.
 
 1. In the NavBar component, manage the component state with `useState` hooks.
 
@@ -352,7 +352,7 @@ This code defines a NavBar component that displays either a "Logout" or a "Login
 
 The frontend uses axios to make API requests to the backend. The backend is responsible for authenticating users and generating JWT tokens.
 
-In the backend folder, install the dependencies:
+In the `backend/` folder, install the dependencies:
 
 ```bash
 npm install
@@ -390,7 +390,7 @@ You will notice that the backend is not complete yet. In this section we will co
 
 #### 2.2.1. server.js
 
-This code defines the backend server and implements the authentication-related endpoints. It also implements a middleware function to verify JWT tokens.
+The code in `server.js` defines the backend server and implements the authentication-related endpoints. It also implements a middleware function to verify JWT tokens.
 
 Add the following code to the `server.js` file:
 
@@ -732,7 +732,7 @@ Auth0's Universal Login is the [recommended](https://auth0.com/blog/introducing-
 
     <sup> Figure 3.2: Go to the settings of your Auth0 app. </sup>
 
-5. Specify the URL where Auth0 should redirect the user after a successful login. For this app, set the URL for **Allowed Callback URLs** to <http://localhost:3000>.
+5. Under "Application URIs", specify the URL where Auth0 should redirect the user after a successful login. For this app, set the URL for **Allowed Callback URLs** to <http://localhost:3000>.
 6. Specify the URL to which Auth0 should redirect the user after they log out. Set the URL for **Allowed Logout URLs** to <http://localhost:3000>.
 7. Define the origins (URLs) from which Auth0 will accept authentication requests. Ensures the login persists when one leaves the app or refreshes the page. Set the URL for **Allowed Web Origins** to <http://localhost:3000>.
 
@@ -768,11 +768,11 @@ your-project-folder
 ├── package-lock.json
 ```
 
-`index.js` needs to be completed for this app to work. We will first go throught the code in the other files and then complete `index.js`.
+`src/index.js` needs to be completed for this app to work. We will first go throught the code in the other files and then complete `index.js`.
 
 #### 3.2.1. App.js
 
-App.js provides the structure of the React application with two components, NavBar and Profile, rendered inside the App component. The NavBar appears at the top, and the Profile appears below it with a margin to separate them.
+The code in `src/App.js` provides the structure of the React application with two components, NavBar and Profile, rendered inside the App component. The NavBar appears at the top, and the Profile appears below it with a margin to separate them.
 
 ```js
 import React from 'react';
@@ -795,21 +795,21 @@ export default App;
 
 #### 3.2.2. NavBar.js
 
-This code creates a Navbar component for a web application that adapts its appearance and functionality based on whether the user is authenticated. It uses the `useAuth0` hook for authentication handling. The main things to take note of in this file are:
+The code in `src/NavBar.js` creates a Navbar component for a web application that adapts its appearance and functionality based on whether the user is authenticated. It uses the `useAuth0` hook for authentication handling. The main things to take note of in this file are:
 
 1. [Inside NavBar component] `const { isAuthenticated, loginWithPopup, logout } = useAuth0();` uses destructuring to extract specific properties and functions from the `useAuth0` hook. It retrieves information on whether the user is authenticated, a function to initiate the login process, and a function to initiate the user logout.
 2. [Inside NavBar component] `{isAuthenticated ? (...) : (...)}` conditionally renders the login and logout buttons based on the user's authentication status.
 
 #### 3.2.3. Profile.js
 
-This code creates a Profile component that displays user profile information when the user is authenticated. It uses the `useAuth0` hook to access user data. The main things to take note of in this file are:
+The code in `src/Profile.js` creates a Profile component that displays user profile information when the user is authenticated. It uses the `useAuth0` hook to access user data. The main things to take note of in this file are:
 
 1. [Inside Profile component] `const { user, isAuthenticated } = useAuth0();` uses destructuring to extract specific properties from the `useAuth0` hook. It retrieves information on whether the user is authenticated and the user data.
 2. [Inside Profile component] `return isAuthenticated && (...)` conditionally renders the user profile information based on the user's authentication status. If the user is authenticated, it renders the content inside the parentheses. If not, it returns null (nothing is rendered).
 
 #### 3.2.4. index.js
 
-Now that we have seen the code in the other files, we can complete the `index.js` file. This file is responsible for rendering the App component and wrapping it with the Auth0Provider component. The Auth0Provider component provides the Auth0Context to the App component. The Auth0Context contains the `useAuth0` hook that we used in the other files.
+Now that we have seen the code in the other files, we can complete the `src/index.js` file. This file is responsible for rendering the App component and wrapping it with the Auth0Provider component. The Auth0Provider component provides the Auth0Context to the App component. The Auth0Context contains the `useAuth0` hook that we used in the other files.
 
 There are some environment variables that we need to define before we can complete the `index.js` file. Navigate to your project root folder and create a `.env` file. Add the following environment variables to the `.env` file:
 
@@ -875,7 +875,7 @@ Now that we have defined the environment variables, we can complete the `index.j
 
     <sup> ^This text was generated with the help of [ChatGPT](https://chat.openai.com/). </sup>
 
-You final index.js file should look like this:
+You final `index.js` file should look like this:
 
 ```js
 // Wrap the entire app in Auth0Provider component
