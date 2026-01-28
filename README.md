@@ -1,4 +1,4 @@
-# CS3219 Toolbox - Authentication and Authorization
+# CS3219 SE Toolbox - Authentication and Authorization
 
 The CS3219 SE Toolbox is a collection of guides and resources to help you get started with the various tools and technologies used CS3219 - Software Engineering Principles and Patterns.
 
