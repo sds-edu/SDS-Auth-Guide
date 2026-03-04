@@ -1,6 +1,6 @@
-# CS3219 SE Toolbox - Authentication and Authorization
+# SDS Toolbox - Authentication and Authorization
 
-The CS3219 SE Toolbox is a collection of guides and resources to help you get started with the various tools and technologies used CS3219 - Software Engineering Principles and Patterns.
+The SDS Toolbox is a collection of guides and resources to help you get started with the various tools and technologies used in software engineering.
 
 The guides and resources below focus on authentication and authorization. We use JSON Web Tokens (JWT) and Auth0 as examples in this guide.
 
