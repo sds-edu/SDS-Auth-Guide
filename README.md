@@ -743,7 +743,7 @@ Your Auth0 app is now configured. You can now use the Auth0 SDK to add authentic
 
 ### 3.2. Clone and Setup the Sample App
 
-Fork/clone the sample app from this repository: [SE-Toolbox-Auth-React-Auth0](https://github.com/CS3219-AY2324S1/SE-Toolbox-Auth-React-Auth0.git)
+Fork/clone the sample app from this repository: [SDS-Kit-Auth-React-Auth0](https://github.com/sds-edu/SDS-Kit-Auth-React-Auth0)
 
 In the project folder, install the dependencies:
 
