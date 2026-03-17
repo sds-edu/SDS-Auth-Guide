@@ -934,5 +934,7 @@ The following resources were used to create this guide:
 - [This article on Authenticating React Apps with Auth0](https://www.smashingmagazine.com/2020/11/authenticating-react-apps-auth0/)
 - [React Router Dom Docs](https://reactrouter.com/en/main)
 - [Auth0 Docs](https://auth0.com/docs/)
-- Parts of this guide were generated with the help of [ChatGPT](https://chat.openai.com/).
-- Parts of this guide were generated with the help of [GitHub Copilot](https://copilot.github.com/).
+
+## AI Declaration
+
+Some parts of this guide were structured, formatted, and refined with the assistance of `ChatGPT` and `Github Copilot` . The model was used to draft technical explanations and generate code snippets. All code snippets used in the guide and command sequences were reviewed, implemented, and tested by the teaching team to ensure accuracy and functionality.
