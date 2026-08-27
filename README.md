@@ -728,26 +728,29 @@ Auth0's Universal Login is the [recommended](https://auth0.com/blog/introducing-
 ### 3.1. Create Auth0 Account and Configure App
 
 1. Create an Auth0 account [here](https://auth0.com/signup). If you already have an account, then login.
-2. Create a new app on your Auth0 dashboard. Select type of App as "Single Page Web Applications" and click on "Create".
+2. Create a new app on your Auth0 dashboard. Select React under "Technology", then "Single Page App" as the application type and click on "Create Application".
 
-    ![Create Auth0 App](images/auth0-1.png)
+    ![Choose the application type in the Auth0 dashboard](images/auth0-01-create-app.png)
 
-    <sup> Figure 3.1: Create Auth0 App </sup>
+    <sup> Figure 3.1: Create a new Auth0 application </sup>
 
-3. Select the technology you are using. In this case, we will select "React".
-4. Click on "Create Application". You will be redirected to a Quick Start page. Click on Settings:
+    ![Confirm the application settings and create it](images/auth0-02-create-app-continued.png)
 
-    ![Got to settings](images/auth0-2.png)
+    <sup> Figure 3.2: Create a new Auth0 application (continued) </sup>
 
-    <sup> Figure 3.2: Go to the settings of your Auth0 app. </sup>
+3. You will be redirected to a Quick Start page. Click on "Settings":
 
-5. Under "Application URIs", specify the URL where Auth0 should redirect the user after a successful login. For this app, set the URL for **Allowed Callback URLs** to <http://localhost:3000>.
-6. Specify the URL to which Auth0 should redirect the user after they log out. Set the URL for **Allowed Logout URLs** to <http://localhost:3000>.
-7. Define the origins (URLs) from which Auth0 will accept authentication requests. Ensures the login persists when one leaves the app or refreshes the page. Set the URL for **Allowed Web Origins** to <http://localhost:3000>.
+    ![Open the Settings tab of the Auth0 application](images/auth0-03-open-settings.png)
+
+    <sup> Figure 3.3: Open your Auth0 application's settings </sup>
+
+4. Under "Application URIs", specify the URL where Auth0 should redirect the user after a successful login. For this app, set the URL for **Allowed Callback URLs** to <http://localhost:3000>.
+5. Specify the URL to which Auth0 should redirect the user after they log out. Set the URL for **Allowed Logout URLs** to <http://localhost:3000>.
+6. Define the origins (URLs) from which Auth0 will accept authentication requests. Ensures the login persists when one leaves the app or refreshes the page. Set the URL for **Allowed Web Origins** to <http://localhost:3000>.
 
     > 📝**Note:** When you configure these Auth0 settings with <http://localhost:3000>, you are specifying that your Auth0 authentication and logout processes should interact with the web application running locally on your machine at that specific URL. You can change these settings later when you deploy your app to a different URL.
 
-8. Scroll down and click on "Save Changes".
+7. Scroll down and click on "Save Changes".
 
 Your Auth0 app is now configured. You can now use the Auth0 SDK to add authentication and authorization to your app. If you want to add additional login methods, you can do so from the "Connections" tab on your Auth0 dashboard.
 
@@ -830,9 +833,9 @@ REACT_APP_AUTH0_CALLBACK_URL=http://localhost:3000
 
 You can obtain the values for these environment variables from your Auth0 app settings. Navigate to your Auth0 dashboard and click on "Applications". Click on the application you created earlier and go to settings. You should be able to find the domain and client ID there.
 
-![Domain and client ID](images/auth0-3.png)
+![Domain and Client ID shown on the Auth0 application settings page](images/auth0-04-app-settings-domain-clientid.png)
 
-<sup>Figure 3.2.4.1. Application settings in Auth0</sup>
+<sup> Figure 3.4: Auth0 application settings (Domain and Client ID) </sup>
 
 Now that we have defined the environment variables, we can complete the `index.js` file.
 
@@ -920,15 +923,15 @@ Now that we have added `index.js` and the environment variables, we can test out
 
 2. Open your browser and navigate to `localhost:3000`. You should see the login page.
 3. Click on the "Login" button. Auth0 login should appear. You can create a new account - or login with a social account that you have added under 'Connections' in your Auth0 dashboard.
-   ![Login Auth0](images/auth0-4.png)
+   ![Auth0 Universal Login screen](images/auth0-05-login.png)
 
-    <sup>Figure 3.3.1. Login with Auth0</sup>
+    <sup> Figure 3.5: Log in with Auth0 </sup>
 
 4. After logging in, you should see the profile page. You may logout by clicking on the "Logout" button in the navigation bar.
 
-    ![Profile page](images/auth0-5.png)
+    ![Profile page showing the authenticated user's details](images/auth0-06-profile-page.png)
 
-    <sup>Figure 3.3.2. Profile page</sup>
+    <sup> Figure 3.6: Profile page </sup>
 
 Yay! You have successfully implemented authentication and authorization in a sample web application using Auth0. You may now use this as a reference to implement authentication and authorization in your own web applications.
 
