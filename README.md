@@ -47,7 +47,7 @@ To get started fork/clone this repository: [SDS-Kit-Auth-React-JWT](https://gith
 As you can see, the project uses a separate React app for the frontend and a separate Node app for the backend. The React app will be served on <http://localhost:3000> and the Node app will be served on http://:localhost:8080>. The project file structure looks like this:
 
 ```bash
-SE-Toolbox-Auth-React-JWT
+SDS-Kit-Auth-React-JWT
 ├── frontend
     ├── React app
 ├── backend
@@ -703,6 +703,16 @@ Yay! You have successfully implemented authentication and authorization in a sam
 >
 > Think about how you would verify the JWT token and return user data from the database. You can use the `jsonwebtoken` library to verify the JWT token and the `fs` library to read the `users.json` file.
 
+> ⚠️ **Important: this guide signs JWTs but never verifies them.** The backend only ever calls `jwt.sign` (via `createToken`) to issue a token on login/register. Nothing in this sample ever calls `jwt.verify`. The frontend stores the token in `localStorage` but never sends it back to the server, and it decides what to render based only on a `userLogin` boolean it reads from `localStorage` — which any user can set by hand.
+>
+> This is fine for *demonstrating* how tokens are issued, but it is **not** real authorization. The moment you add any protected resource (an endpoint that returns user data, an admin-only action, etc.), you must:
+>
+> 1. Send the token from the frontend on every request, e.g. `Authorization: Bearer <token>`.
+> 2. On the backend, add middleware that calls `jwt.verify(token, SECRET_KEY)`, rejects the request with `401` if it is missing, malformed, expired, or fails the signature check, and only then lets the handler run.
+> 3. Use the verified payload (not anything sent separately by the client) to decide what the user is allowed to do.
+>
+> Without step 2, a protected route is protected in appearance only.
+
 ## 3. Auth0
 
 [Auth0](https://auth0.com/) is a flexible, drop-in solution to add authentication and authorization services to your applications. Your team and your users can securely authenticate with passwords, social identity providers, or enterprise identity providers to get seamless, SSO access to applications.
@@ -767,7 +777,7 @@ your-project-folder
 ├── package-lock.json
 ```
 
-`src/index.js` needs to be completed for this app to work. We will first go throught the code in the other files and then complete `index.js`.
+> ⚠️ Important: `src/index.js` is intentionally incomplete and must be completed before this app will work. We will first review the other files and then finish `index.js` together.
 
 #### 3.2.1. App.js
 
